@@ -22,19 +22,3 @@ definitionlist::
 ##link::Classes/CodexIncrementer::
 ||Generates incrementally advanced file names within a given directory.
 ::
-
-section::Framework extensions
-definitionlist::
-##link::Classes/CodexProxier::
-||Manipulates data in a link::Classes/ProxySpace::.
-##link::Classes/CodexSonata::
-||Sequences proxier-like sections.
-##link::Classes/CodexMovement::
-||Sequences proxier-like sections via patterns.
-##link::Classes/CodexSymphony::
-||Sequences collections of CodexMovement.
-##link::Classes/CodexInstrument::
-||Establishes a foundation for developing instruments.
-##link::Classes/CodexPanel::
-||Establishes a foundation for creating GUIs.
-::

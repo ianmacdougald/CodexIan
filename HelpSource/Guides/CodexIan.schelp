@@ -236,3 +236,8 @@ x.modules.synthDef.name.postln;
 //Play it to hear sounds.
 x.play;
 ::
+
+section::But wait! There's more!
+
+For more classes and frameworks that are based on the procedures outlined in this guide, check out the following link::https://github.com/ianmacdougald/CodexIanFrameworks##quark::. It is made up of my repository of still-in-the-works tools for composing electronic music, quickly fabricating and storing configurations of GUI elements, making virtual instruments, and other stuff that is still to come in the future!
+
