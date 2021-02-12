@@ -16,11 +16,11 @@ In SuperCollider, evaluate the following:
 
 Added pseudo-method lookups to CodexStorage dictionary from String instances. 
 
-**0.3.5**
+**0.4.0**
 
 Changed String extension method for interacting with CodexStorage via pseudo methods
 
-**0.4.0**
+**0.5.0**
 
 Separate out non-core classes into their own [repository](https://github.com/ianmacdougald/CodexIanMore).
 
