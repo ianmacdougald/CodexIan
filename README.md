@@ -22,6 +22,6 @@ Changed String extension method for interacting with CodexStorage via pseudo met
 
 **0.5.0**
 
-Separate out non-core classes into their own [repository](https://github.com/ianmacdougald/CodexIanMore).
+Separated non-core classes into their own [repository](https://github.com/ianmacdougald/CodexIanMore).
 
 
