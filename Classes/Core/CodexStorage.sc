@@ -12,7 +12,7 @@ CodexStorage  {
 		Class.initClassTree(Quarks);
 		Class.initClassTree(Dictionary);
 		Class.initClassTree(Collection);
-		storagePath = Main.packages.asDict.at('CodexIan')
+		storagePath = Main.packages.asDict.at('Codices')
 		+/+format("%.yaml", this.name);
 		this.checkDictionary;
 	}

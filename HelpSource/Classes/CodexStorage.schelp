@@ -1,6 +1,6 @@
 TITLE::CodexStorage
 summary::Interface for persistent storage of data
-categories::Libraries>CodexIan
+categories::Libraries>Codices
 related::Classes/CodexIncrementer
 keyword::persistent, codexian, codexian path, utilities, codexian utilities
 DESCRIPTION::

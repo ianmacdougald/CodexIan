@@ -9,7 +9,7 @@ CodexComposite {
 		directory = CodexStorage.at(id) ?? {
 			CodexStorage.setAt(
 				id,
-				Main.packages.asDict.at(\CodexIan)
+				Main.packages.asDict.at(\Codices)
 				+/+"scmodules"
 			);
 		};

@@ -2,7 +2,7 @@ HybridExample : CodexHybrid {
 	var player;
 
 	*contribute { | versions |
-		var toQuark = Main.packages.asDict.at(\CodexIan);
+		var toQuark = Main.packages.asDict.at(\Codices);
 		var toExample = toQuark+/+"Classes/Examples/Modules";
 
 		versions.add(

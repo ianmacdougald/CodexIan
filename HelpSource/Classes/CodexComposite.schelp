@@ -1,11 +1,11 @@
 TITLE::CodexComposite
 summary::Abstract superclass of modular composite classes
-categories::Libraries>CodexIan
-related::Classes/CodexHybrid, Guides/CodexIan
+categories::Libraries>Codices
+related::Classes/CodexHybrid, Guides/Codices
 keyword::composite, compositing, codexian, composition
 
 DESCRIPTION::
-CodexComposite establishes a workflow both for developing and interacting with objects that are comprised of interconnected scriptable modules. The class organizes collections of modules within a directory that it maintains, providing a simple interface for manipulating these collections—by loading them, unloading them, cloning them, and generating them from templates (see link::Classes/CodexTemplater::). In this way, each composite-typed class is free to focus on defining interesting behaviors for its respective modules rather than dealing with the pesky details of their storage and management.
+CodexComposite establishes a workflow both for developing and interacting with objects that are comprised of interconnected scriptable modules. The class organizes collections of modules within a directory that it maintains, providing a simple interface for manipulating these collections—by loading them, unloading them, cloning them, and generating them from templates (see link::Classes/CodexTemplater::). In this way, each Codex-typed class is free to focus on defining interesting behaviors for its respective modules rather than dealing with the pesky details of their storage and management.
 
 note::CodexComposite should not be instantiated. Rather, it is meant to encapsulate behaviors on behalf of its subclasses. So instance those instead.
 ::

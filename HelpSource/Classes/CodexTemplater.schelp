@@ -1,6 +1,6 @@
 TITLE::CodexTemplater
 summary::Generator of .scd files from templates of code
-categories::Libraries>CodexIan
+categories::Libraries>Codices
 related::Classes/CodexIncrementer, Classes/CodexComposite
 keyword::template, codexian, compositing, utilities, codexian utilities
 
@@ -20,7 +20,7 @@ list::
 
 However, if a situation arises in which a composite needs templates from different objects or combinations of objects, like a function that returns an array of events, CodexTemplater can be easily link::#Extending CodexTemplater#extended::.
 
-CodexTemplater was originally designed to work within the link::Classes/CodexComposite:: framework. To see it in action, refer to this link::Guides/CodexIan##guide::.
+CodexTemplater was originally designed to work within the link::Classes/CodexComposite:: framework. To see it in action, refer to this link::Guides/Codices##guide::.
 CLASSMETHODS::
 
 method::new

@@ -1,10 +1,10 @@
 (
-name: "CodexIan", 
+name: "Codices", 
 summary: "Framework for developing modular class interfaces", 
 author: "ianmacdougald", 
 version: "0.5.0", 
 copyright: "ianmacdougald", 
-schelp: "Guides/CodexIan",
+schelp: "Guides/Codices",
 dependencies: [],
 license: "GPL"
 )
