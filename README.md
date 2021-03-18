@@ -9,19 +9,3 @@ For more on how to work with the Codices quark, consult the HelpSource guide.
 In SuperCollider, evaluate the following: 
 
 `Quarks.install("https://github.com/ianmacdougald/Codices");`
-
-## Changelog 
-
-**0.3.4** 
-
-Added pseudo-method lookups to CodexStorage dictionary from String instances. 
-
-**0.4.0**
-
-Changed String extension method for interacting with CodexStorage via pseudo methods
-
-**0.5.0**
-
-Separated non-core classes into their own [repository](https://github.com/ianmacdougald/CodicesMore).
-
-
