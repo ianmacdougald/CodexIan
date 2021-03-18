@@ -2,9 +2,9 @@ CodexTemplater {
 	classvar defaultPath;
 	var <>folder;
 
-	*initClass { 
+	*initClass {
 		defaultPath = Main.packages.asDict
-		.at(\CodexIan)+/+"Classes/Templates";
+		.at(\Codices)+/+"Classes/Templates";
 	}
 
 	*new { | folder |
@@ -41,7 +41,7 @@ CodexTemplater {
 	}
 
 	buffer { | templateName("buffer") |
-		this.makeTemplate(templateName, defaultPath+/+"buffer.scd");	
+		this.makeTemplate(templateName, defaultPath+/+"buffer.scd");
 	}
 
 	blank { | templateName("module") |
