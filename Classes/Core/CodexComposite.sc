@@ -63,14 +63,6 @@ CodexComposite {
 		cache.copyEntry(this.name, from, to);
 	}
 
-	*loadScripts { | at |
-		var return = CodexModules.new;
-		this.asPath(at).getScriptPaths.do({ | script |
-			return.add(this.scriptKey(script) -> script.load);
-		});
-		^return;
-	}
-
 	*asPath { | input |
 		input = input.asString;
 		if(PathName(input).isRelativePath, {
@@ -79,11 +71,6 @@ CodexComposite {
 	}
 
 	*classFolder { ^(this.directory +/+ this.name) }
-
-	*scriptKey { | input |
-		var string = PathName(input).fileNameWithoutExtension;
-		^(string[0].toLower++string[1..]).asSymbol;
-	}
 
 	*processFolders { | set, from |
 		var folder = this.asPath(set);
@@ -109,7 +96,7 @@ CodexComposite {
 	*makeTemplates { | templater | }
 
 	*addModules { | key |
-		this.cache.add(key -> this.loadScripts(key));
+		this.cache.add(key -> CodexModules(this.asPath(key)));
 	}
 
 	*copyVersions {
@@ -275,5 +262,45 @@ CodexComposite {
 }
 
 CodexModules : Environment {
-	*new { ^super.new.know_(true) }
+	*new { | folder |
+		var obj = super.new.know_(true);
+		folder !? { obj.compileFolder(folder).loadAll };
+		^obj;
+	}
+
+	compileFolder { | folder |
+		PathName(folder).files.do { | file |
+			this.compilePath(file.fullPath);
+		};
+	}
+
+	getKeyFrom { | input |
+		var string = PathName(input).fileNameWithoutExtension;
+		^(string[0].toLower++string[1..]).asSymbol;
+	}
+
+	compilePath { | path |
+		var func = thisProcess.interpreter.compileFile(path);
+		this.add(this.getKeyFrom(path) -> CodexTmpModule(func));
+	}
+
+	loadAll {
+		this.keys.do { | key |
+			this[key] = this[key].value;
+		};
+	}
+}
+
+CodexTmpModule {
+	var <>func;
+
+	*new { | func | ^super.new.func_(func) }
+
+	value { | ... args | ^func.value(*args) }
+
+	doesNotUnderstand { | selector ... args |
+		try {
+			^func.value.performList(selector, args)
+		} { DoesNotUnderstandError(this, selector, args).throw }
+	}
 }

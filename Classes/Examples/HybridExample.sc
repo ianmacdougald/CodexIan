@@ -19,7 +19,7 @@ HybridExample : CodexHybrid {
 
 	play {
 		if(player.isPlaying.not, {
-			player = modules.sequence.play;
+			player = modules.use({ ~sequence.play });
 		});
 	}
 
