@@ -89,9 +89,9 @@ CodexExample : CodexComposite {
 		templater.pattern( "sequence" );
 	}
 
-	play { 
-		if(player.isPlaying.not, { 
-			player = modules.sequence.play;
+	play { | clock(TempoClock.default) |
+		if(player.isPlaying.not, {
+			player = modules.sequence.play(clock, modules.asEvent);
 		});
 	}
 
@@ -137,7 +137,7 @@ x.openModules;
 //If you want to make a new set of modules, that is easy.
 x.moduleSet = \version2;
 
-//There are now more moduleSets accessible to the class
+//There are now more moduleSets accessible to the class.
 CodexExample.moduleSets.postln;
 x.modules.postln;
 
@@ -150,11 +150,10 @@ x.reloadScripts;
 //You can switch back and forth between existing modules too.
 x.moduleSet = \version1;
 
-//If you want to make a new folder cloned from the \version2 one...
-//edit the file in the \version2 folder, and clone it as follows:
+//You can clone a new folder from \version2.
 x.moduleSet_(\version3, \version2);
 
-//Open the new modules. Unless you edited \version2, the new modules will look like templates. 
+//Open the new modules to see that the modules have been copied. 
 x.openModules;
 ::
 
@@ -191,7 +190,7 @@ CodexExampleHybrid : CodexHybrid {
 	}
 
 	//initHybrid is called immediately after initComposite, 
-	//which contains the code that makes CodexHybrid work
+	//which contains the code that makes CodexHybrid work.
 	initHybrid {}
 
 	*makeTemplates { | templater |
@@ -233,9 +232,17 @@ x.synthDef.name.postln;
 //Play it to hear sounds. 
 x.play;
 
+//Stop it to stop sounds. 
+x.stop;
+
 //Clone a new moduleSet to observe the new SynthDef name.
 x.moduleSet_(\example2, \example);
 x.modules.synthDef.name.postln;
+
+//Edit the modules if you want, then reload the scripts. 
+x.openModules;
+x.reloadScripts; 
+x.closeModules;
 
 //Play it to hear sounds.
 x.play;

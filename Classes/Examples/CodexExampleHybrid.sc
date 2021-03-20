@@ -10,6 +10,8 @@ CodexExampleHybrid : CodexHybrid {
 		);
 	}
 
+	//initHybrid is called immediately after initComposite, 
+	//which contains the code that makes CodexHybrid work.
 	initHybrid {}
 
 	*makeTemplates { | templater |

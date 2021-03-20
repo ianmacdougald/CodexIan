@@ -9,9 +9,9 @@ CodexExample : CodexComposite {
 		templater.pattern( "sequence" );
 	}
 
-	play { 
-		if(player.isPlaying.not, { 
-			player = modules.sequence.play;
+	play { | clock(TempoClock.default) |
+		if(player.isPlaying.not, {
+			player = modules.sequence.play(clock, modules.asEvent);
 		});
 	}
 
