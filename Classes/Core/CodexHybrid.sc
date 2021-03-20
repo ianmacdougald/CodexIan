@@ -27,21 +27,16 @@ CodexHybrid : CodexComposite {
 		processor.remove(this.findSynthDefs(key));
 	}
 
+	*selectSynthDefs { | collection |
+		^collection.select({ | item |
+			item.isKindOf(SynthDef);
+		});
+	}
+
 	*findSynthDefs { | key |
-		^this.cache[key].select({ | module |
-			module.isKindOf(SynthDef) or: {
-				var bool = false;
-				if(module.isCollection, {
-					block { | break |
-						module.flat.do { | submodule |
-							bool = submodule.isKindOf(SynthDef);
-							if(bool, { break.value(999) });
-						};
-					};
-				});
-				bool;
-			};
-		}).asArray.flat;
+		^this.cache[key].asArray.flat.select({ | item |
+			item.isKindOf(SynthDef);
+		});
 	}
 
 	*namedSynthDefs { | key |

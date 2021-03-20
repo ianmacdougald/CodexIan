@@ -17,9 +17,9 @@ HybridExample : CodexHybrid {
 		templater.synthDef( "synthDef" );
 	}
 
-	play {
+	play { | clock(TempoClock.default) |
 		if(player.isPlaying.not, {
-			player = modules.use({ ~sequence.play });
+			player = modules.sequence.play(clock, modules.asEvent);
 		});
 	}
 
