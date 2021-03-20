@@ -13,7 +13,7 @@ HybridExample : CodexHybrid {
 	initHybrid {}
 
 	*makeTemplates { | templater |
-		templater.hybridExampleFunction( "sequence" );
+		templater.pattern( "sequence" );
 		templater.synthDef( "synthDef" );
 	}
 
