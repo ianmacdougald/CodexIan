@@ -1,4 +1,4 @@
-CompositeExample : CodexComposite {
+CodexExample : CodexComposite {
 	var player;
 	
 	//initComposite is called immediately after modules are loaded into the class. 

@@ -73,12 +73,12 @@ There are four short steps required to make a contribution: first, checkout a ne
 By implementing this framework as a platform that publishes diverse approaches common projects, my hope is to promote a collaborative music-making process that mirros the ethos of the libre/open-source software movements in which the SuperCollider project itself is developed. More information about the procedures by which one participates either with Codex-based projects or with SuperCollider can be found by visiting the following link: 
 link::https://supercollider.github.io/contributing/::.
 
-section::CompositeExample
+section::CodexExample
 Developing a class that inherits from CodexComposite is relatively simple. No constructor is needed. The only requirement is that the developer fill out the method link::Classes/CodexComposite#*makeTemplates::, which takes an instance of link::Classes/CodexTemplater:: as an argument. In fact, it is this method that defines the modules of a class. For instance, if you are making a class that requires a pattern that can be accessed via the key \sequence, then the templater instance must be told to generate a pattern with the name "sequence".
 
 A basic implementation of a class that inherits from CodexComposite is displayed below. There, a single module — a pattern called "sequence" — is defined, and the class implements two other methods that play and stop the module.
 code::
-CompositeExample : CodexComposite {
+CodexExample : CodexComposite {
 	var player;
 	
 	//initComposite is called immediately after modules are loaded into the class. 
@@ -106,13 +106,13 @@ CompositeExample : CodexComposite {
 subsection::Usage
 Below represents code for interacting with the class whose implementation is displayed immediately above.
 code::
-x = CompositeExample.new(\version1);
+x = CodexExample.new(\version1);
 
 //Insepct the modules.
 x.modules.postln;
 
 (
-//A folder now exists in the directory.
+//A folder now exists in the modules' directory.
 var path = CodexComposite.directory;
 PathName(path).folders.do({|item|
 	item.folderName.postln;
@@ -121,27 +121,27 @@ PathName(path).folders.do({|item|
 
 (
 //Inspecting that folder, see that an entry exists for \version1.
-var path = CompositeExample.classFolder;
+var path = CodexExample.classFolder;
 PathName(path).folders.do({|item|
 	item.folderName.postln;
 });
 )
 
 //This is easier done using the .moduleSets class method
-CompositeExample.moduleSets;
+CodexExample.moduleSets;
 
-//Open up the default script files to inspect them or make changes.
+//Open up the currently loaded scripts.
+//This is only supported for scide, scvim, and scnvim.
 x.openModules; 
 
 //If you want to make a new set of modules, that is easy.
 x.moduleSet = \version2;
 
 //There are now more moduleSets accessible to the class
-CompositeExample.moduleSets.postln;
+CodexExample.moduleSets.postln;
 x.modules.postln;
 
 //Open the \version2 set of modules.
-//This method is only supported for the editors scide, scvim, and scnvim.
 x.openModules; 
 
 //If you edit them, load the changes back into the instance. 
@@ -162,7 +162,9 @@ SECTION::CodexHybrid
 CodexHybrid extends the procedures of CodexComposite to process SynthDef modules. It does this by reformatting their names to prevent clashes before sending each respective SynthDef to a given server. SynthDef modules will only be added to the server when unique collections of modules are added to the cache maintained by CodexComposite.
 
 subsection::SynthDef naming
-Consider the the case of a class that defines a SynthDef module template and inherits from CodexHybrid. For the sake of argument, let's imagine that this class is called teletype::GuideExample:: and that its set of modules, \fooBar, names its SynthDef \fooBarSound. If another set of modules, \fooBarClone, is copied from the first but contains a different version of its SynthDef, then loading both sets into the same server session would cause one version of the SynthDef to overwrite another. In other words, in this example both sets of modules cannot function independently. To address this problem, CodexHybrid forces each class to rename its SynthDef modules, appending the user-defined key with the name of both the modules' set and also the class itself. In this way, the hypothetical SynthDefs referred to above would be renamed \GuideExample_fooBar_fooBarSound and \GuideExample_fooBarClone_fooBarSound respectively. Once these sets of modules are loaded, the class will not re-add the associated SynthDefs for the duration of the server session unless they are removed using link::Classes/CodexHybrid#-removeSynthDefs::. In CodexHybrid, the method teletype::-reloadScripts:: is overloaded to include teletype::-removeSynthDefs:: so that SynthDefs are updated on the server as the modules themselves are updated. 
+CodexHybrid forces each class to rename its SynthDef modules, appending the user-defined key with the name of both the modules' set and also the class itself. As a result, multiple module sets can be cloned from one another and then instanced simultaneously without any naming clashes. This occurs according to the following format: teletype::ClassName_moduleSet_synthDefName::. In other words, if a SynthDef is called "world" in a set "milkyWay" of the hypothetical class "Universe," then CodexHybrid will rename that SynthDef to "Universe_milkyWay_world." If that module set is then cloned into a new one called "andromeda," its SynthDef would be renamed to "Universe_andromeda_world."
+
+Once these sets of modules are loaded, the class will not re-add the associated SynthDefs for the duration of the server session unless they are removed using link::Classes/CodexHybrid#-removeSynthDefs::. In CodexHybrid, the method teletype::-reloadScripts:: is overloaded to include teletype::-removeSynthDefs:: so that SynthDefs are updated on the server as the scripts themselves are updated. 
 
 note:: To ensure that SynthDef names are accessed consistently, it is best not to hardcode the names of SynthDefs either into any modules or class implementations. Rather, calling the method link::Classes/SynthDef#-name#-name:: on the associated SynthDef module will produce more consistent results.
 code::
@@ -170,17 +172,15 @@ code::
 ::
 ::
 
-section::HybridExample
-The below implementation example builds upon the previous one by defining a SynthDef module and replacing the pattern module with a custom template called "patternFunction", which, as its name suggests, returns a function that itself returns a pattern. 
+section::CodexExampleHybrid
+The below implementation example builds upon the previous one by defining a  SynthDef module to be sequenced by a pattern and demonstrates the proper way to add default modules to a Codex class. 
 
-Also, note that that the method teletype::initComposite:: has been replaced with teletype::initHybrid::. The reason for this change is due to the fact that CodexHybrid engages its specialized procedures in the method teletype::initComposite::, making it unavailable. Nevertheless, given that teletype::-initHybrid:: is called upon after the completion of these procedures, it plays an equivalent role for the subclasses of CodexHybrid as teletype::initComposite:: plays for all other subclasses of CodexComposite. 
+Notice also that teletype::initComposite:: has been replaced by teletype::initHybrid::. This is because the special procedures of CodexHybrid occur in the method teletype::initComposite::, subsequently calling teletype::initHybrid::, further continuing the chain of initialization methods.
 
 code::
-HybridExample : CodexHybrid {
+CodexExampleHybrid : CodexHybrid {
 	var player;
 
-	//Note the usage of the contribution method, which points to modules 
-	//that are automatically copied to the class folder.
 	*contribute { | versions |
 		var toQuark = Main.packages.asDict.at(\Codices);
 		var toExample = toQuark+/+"Classes/Examples/Modules";
@@ -190,16 +190,18 @@ HybridExample : CodexHybrid {
 		);
 	}
 
+	//initHybrid is called immediately after initComposite, 
+	//which contains the code that makes CodexHybrid work
 	initHybrid {}
 
 	*makeTemplates { | templater |
-		templater.hybridExampleFunction( "sequence" );
+		templater.pattern( "sequence" );
 		templater.synthDef( "synthDef" );
 	}
 
-	play {
+	play { | clock(TempoClock.default) |
 		if(player.isPlaying.not, {
-			player = modules.sequence.play;
+			player = modules.sequence.play(clock, modules.asEvent);
 		});
 	}
 
@@ -211,20 +213,22 @@ HybridExample : CodexHybrid {
 }
 ::
 subsection::Usage
-Here is an outline of how to interact with the HybridExample class. It should make sounds.
+Here is an outline of how to interact with the CodexExampleHybrid class. It should make sounds.
 
 code::
 //Inspect existing module sets
-HybridExample.moduleSets.postln;
+CodexExampleHybrid.moduleSets.postln;
 
-//Instance a new HybridExample.
-s.waitForBoot({ x = HybridExample.new(\example) });
+//Instance a new CodexExampleHybrid.
+s.waitForBoot({ x = CodexExampleHybrid.new(\example) });
 
 //Inspect the modules.
 x.modules.postln;
 
 //Inspect the name of the SynthDef.
 x.modules.synthDef.name.postln;
+//Or, use the shortcut
+x.synthDef.name.postln;
 
 //Play it to hear sounds. 
 x.play;

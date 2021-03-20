@@ -1,6 +1,6 @@
 CodexComposite {
 	classvar <directory, id = 'scmodules', cache;
-	var <moduleSet, <modules, <>know = false;
+	var <moduleSet, <modules, <>know = true;
 
 	*initClass {
 		Class.initClassTree(Dictionary);

@@ -1,4 +1,4 @@
-HybridExample : CodexHybrid {
+CodexExampleHybrid : CodexHybrid {
 	var player;
 
 	*contribute { | versions |
