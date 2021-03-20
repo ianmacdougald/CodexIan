@@ -281,22 +281,27 @@ CodexModules : Environment {
 
 	compilePath { | path |
 		var func = thisProcess.interpreter.compileFile(path);
-		this.add(this.getKeyFrom(path) -> CodexTmpModule(func));
+		var key = this.getKeyFrom(path);
+		this.add(key -> CodexTmpModule(key, this, func));
 	}
 
-	loadAll {
-		this.keys.do { | key |
-			this[key] = this[key].value;
-		};
-	}
+	loadAll { this.asArray.do(_.value) }
 }
 
 CodexTmpModule {
-	var <>func;
+	var <>key, <>modules, <>func;
 
-	*new { | func | ^super.new.func_(func) }
+	*new { | key, modules, func |
+		^super.newCopyArgs(key, modules, func);
+	}
 
-	value { | ... args | ^func.value(*args) }
+	value { | ... args |
+		^modules.use({
+			var obj = func.value(*args);
+			modules[key] = obj;
+			obj;
+		});
+	}
 
 	doesNotUnderstand { | selector ... args |
 		try {
