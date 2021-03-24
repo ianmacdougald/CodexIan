@@ -282,8 +282,14 @@ CodexModules : Environment {
 	}
 
 	compilePath { | path |
-		var func = thisProcess.interpreter.compileFile(path);
 		var key = this.getKeyFrom(path);
+		this.at(key) ?? {
+			var func = thisProcess.interpreter.compileFile(path);
+			this.addToEnvir(key, func);
+		};
+	}
+
+	addToEnvir { | key, func |
 		this.add(key -> CodexTmpModule(key, func));
 	}
 

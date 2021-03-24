@@ -1,5 +1,4 @@
 + String {
-
 	normalizePathAudio{ | level(1.0), server(Server.default),
 		sampleFormat("int24") |
 		var buffer, pathname = PathName(this);
@@ -55,6 +54,20 @@
 	}
 
 	copyFolder { | newFolder | this.copyFilesTo(newFolder.mkdir) }
+
+	endNumber {	// turn consecutive digits at the end of fullPath into a number.
+		^this[this.endNumberIndex + 1..].asInteger
+	}
+
+	endNumberIndex {
+		var index = this.lastIndex;
+		while({
+			index > 0 and: { this.at(index).isDecDigit }
+		}, {
+			index = index - 1
+		});
+		^index
+	}
 }
 
 + Symbol {
