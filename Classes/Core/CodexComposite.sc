@@ -269,9 +269,11 @@ CodexModules : Environment {
 	}
 
 	compileFolder { | folder |
-		PathName(folder).files.do { | file |
-			this.compilePath(file.fullPath);
-		};
+		this.use({
+			PathName(folder).files.do { | file |
+				this.compilePath(file.fullPath);
+			};
+		});
 	}
 
 	getKeyFrom { | input |
@@ -282,23 +284,30 @@ CodexModules : Environment {
 	compilePath { | path |
 		var func = thisProcess.interpreter.compileFile(path);
 		var key = this.getKeyFrom(path);
-		this.add(key -> CodexTmpModule(key, this, func));
+		this.add(key -> CodexTmpModule(key, func));
 	}
 
-	loadAll { this.asArray.do(_.value) }
+	loadAll {
+		this.array.do { | item |
+			if(item.isKindOf(CodexTmpModule)){
+				item.value;
+			}
+		};
+	}
+
 }
 
 CodexTmpModule {
-	var <>key, <>modules, <>func;
+	var <>key, <>func, <envir;
 
-	*new { | key, modules, func |
-		^super.newCopyArgs(key, modules, func);
+	*new { | key, func |
+		^super.newCopyArgs(key, func, currentEnvironment);
 	}
 
 	value { | ... args |
-		^modules.use({
+		^envir.use({
 			var obj = func.value(*args);
-			modules[key] = obj;
+			envir.add(key -> (obj ? $ ));
 			obj;
 		});
 	}

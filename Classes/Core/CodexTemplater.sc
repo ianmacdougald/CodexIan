@@ -45,7 +45,7 @@ CodexTemplater {
 	}
 
 	blank { | templateName("module") |
-		this.makeTemplate(templateName, defaultPath+/+"module.scd");
+		this.makeTemplate(templateName, defaultPath+/+"blank.scd");
 	}
 
 	makeTemplate { | templateName, sourcePath |
