@@ -1,25 +1,24 @@
 CodexIncrementer {
-	var fileTemplate, <folder, <>extension;
+	var fileTemplate, <>folder, <>extension;
 	var <currentIncrement, previousFileName;
 
-	*new { | fileTemplate = "some-file.wav", folder |
+	*new { | fileTemplate = "some_file.wav", folder |
 		^super.new
-		.fileTemplate_(fileTemplate)
 		.folder_(folder)
+		.fileTemplate_(fileTemplate)
 	}
 
 	fileTemplate_{ | newTemplate |
 		var patharr = newTemplate.splitext;
 		extension = patharr[1];
-		currentIncrement = PathName(patharr[0]).endNumber;
-		fileTemplate = PathName(patharr[0]).noEndNumbers;
-		this.reset;
+		currentIncrement = patharr[0].endNumber;
+		fileTemplate = patharr[0].noEndNumbers;
 	}
 
 	fileTemplate { ^(fileTemplate++"."++extension) }
 
 	increment {
-		if(previousFileName.isNil or: {previousFileName.exists}){
+		if(previousFileName.isNil or: { previousFileName.exists }){
 			previousFileName = this.nextFileName;
 		};
 		^previousFileName;
@@ -53,10 +52,10 @@ CodexIncrementer {
 		^this.formatFileName(fileTemplate++(currentIncrement -1));
 	}
 
-	folder_{ | newFolder |
-		folder = newFolder;
-		this.reset;
-	}
+	/*	folder_{ | newFolder |
+	folder = newFolder;
+	this.reset;
+	}*/
 
 }
 

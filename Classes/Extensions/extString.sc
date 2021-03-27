@@ -55,6 +55,11 @@
 
 	copyFolder { | newFolder | this.copyFilesTo(newFolder.mkdir) }
 
+	//I just copied these methods from PathName...
+	noEndNumbers {
+		^this[..this.endNumberIndex]
+	}
+
 	endNumber {	// turn consecutive digits at the end of fullPath into a number.
 		^this[this.endNumberIndex + 1..].asInteger
 	}
