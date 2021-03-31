@@ -96,7 +96,7 @@ CodexComposite {
 	*makeTemplates { | templater | }
 
 	*addModules { | key |
-		this.cache.add(key -> CodexModules(this.asPath(key)));
+		this.cache.add(key -> CodexModules(this.asPath(key)).loadAll);
 	}
 
 	*copyVersions {
@@ -262,18 +262,19 @@ CodexComposite {
 }
 
 CodexModules : Environment {
+
 	*new { | folder |
-		var obj = super.new.know_(true);
-		folder !? { obj.compileFolder(folder).loadAll };
-		^obj;
+		^super.new.know_(true).compileFolder(folder);
 	}
 
 	compileFolder { | folder |
-		this.use({
-			PathName(folder).files.do { | file |
-				this.compilePath(file.fullPath);
-			};
-		});
+		folder !? {
+			this.use({
+				PathName(folder).files.do { | file |
+					this.compilePath(file.fullPath);
+				};
+			});
+		};
 	}
 
 	getKeyFrom { | input |
