@@ -4,7 +4,7 @@ CodexTemplater {
 
 	*initClass {
 		defaultPath = Main.packages.asDict
-		.at(\Codices)+/+"Classes/Templates";
+		.at(\Codices)+/+"Templates";
 	}
 
 	*new { | folder |

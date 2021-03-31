@@ -3,7 +3,7 @@ CodexExampleHybrid : CodexHybrid {
 
 	*contribute { | versions |
 		var toQuark = Main.packages.asDict.at(\Codices);
-		var toExample = toQuark+/+"Classes/Examples/Modules";
+		var toExample = toQuark+/+"Examples/Modules";
 
 		versions.add(
 			[\example, toExample]
