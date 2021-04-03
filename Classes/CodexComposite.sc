@@ -291,12 +291,12 @@ CodexModules : Environment {
 	}
 
 	addToEnvir { | key, func |
-		this.add(key -> CodexTmpModule(key, func));
+		this.add(key -> CodexModule(key, func));
 	}
 
 	loadAll {
 		this.array.do { | item |
-			if(item.isKindOf(CodexTmpModule)){
+			if(item.isKindOf(CodexModule)){
 				item.value;
 			}
 		};
@@ -304,7 +304,7 @@ CodexModules : Environment {
 
 }
 
-CodexTmpModule {
+CodexModule {
 	var <>key, <>func, <envir;
 
 	*new { | key, func |
@@ -321,7 +321,7 @@ CodexTmpModule {
 
 	doesNotUnderstand { | selector ... args |
 		try {
-			^func.value.performList(selector, args)
+			^this.value.performList(selector, args)
 		} { DoesNotUnderstandError(this, selector, args).throw }
 	}
 }
