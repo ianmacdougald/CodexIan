@@ -86,7 +86,6 @@ CodexProcessor {
 		adder = CodexAdder(server);
 		remover = CodexRemover(server);
 		sender = CodexSender(server);
-		this.label = nil;
 	}
 
 	getSynthDefs { | ... arguments |
