@@ -285,10 +285,6 @@ CodexModules : Environment {
 			this.at(key).isKindOf(CodexModule);
 		}.collect { | key | this.loadModule(key) };
 		this.processAll(modules.asArray, *args);
-	}
-
-	processAll { | objects=([]) ... labels |
-		[\objects, objects, \labels, labels].postln;
 		if(objects.isEmpty.not){
 			labels.do { | item |
 				processor.label = processor.label++item++"_";
@@ -296,14 +292,6 @@ CodexModules : Environment {
 			processor.add(*objects);
 			processor.label = "";
 		}
-	}
-
-	processModule { | object ... labels |
-		labels.do { | item |
-			processor.label = processor.label++item++"_";
-		};
-		processor.add(object);
-		processor.label = "";
 	}
 
 	loadModule { | key ... args|
