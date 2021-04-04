@@ -1,7 +1,7 @@
 TITLE::CodexProcessor
 summary::Manager for loading and unloading of SynthDefs from a server
 categories::Libraries>Codices
-related::Classes/CodexHybrid
+related::Classes/Codex, Classes/CodexModules
 keyword::codexian, utilities, synthdef, processor, codexian utlities
 
 DESCRIPTION::
