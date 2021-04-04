@@ -43,6 +43,7 @@ CodexComposite {
 
 	loadModules { | from |
 		modules = this.class.getModules(moduleSet, from);
+		modules.loadAll(this.class.name, moduleSet);
 	}
 
 	*getModules { | set, from |
@@ -55,14 +56,21 @@ CodexComposite {
 		};
 
 		if(dict[set].isNil){
-			if(path.exists.not){
+			if(path.exists){
+				this.addModules(set);
+			} {
 				path.mkdir;
-				from !? {
+				if(from.isNil){
+					this.makeTemplates(CodexTemplater(path));
+					this.addModules(set);
+				} {
+					//Copy the modules from 'from' to 'set.'
 					dict.add(set -> this.getModules(from));
-					fork { (from+/+set).copyScriptsTo(path) }
-				} ?? { this.makeTemplates(CodexTemplater(path)) };
+					//Make the associated folders.
+					fork { (this.classFolder+/+from).copyScriptsTo(path) }
+					//Otherwise, load from templates.
+				}
 			};
-			this.addModules(set);
 		};
 
 		^dict[set].deepCopy;
@@ -72,9 +80,8 @@ CodexComposite {
 
 	*makeTemplates { | templater | }
 
-	*addModules { | key |
-		var modules = CodexModules(this.classFolder+/+key).loadAll(this.name, key);
-		this.cache.add(key -> modules);
+	*addModules { | set |
+		this.cache.add(set -> CodexModules(this.classFolder+/+set));
 	}
 
 	*copyVersions {
@@ -280,16 +287,15 @@ CodexModules : Environment {
 		this.add(key -> CodexModule(key, func));
 	}
 
-	loadAll { | ... args |
+	loadAll { | ... labels |
 		var modules = this.keys.select { | key |
 			this.at(key).isKindOf(CodexModule);
 		}.collect { | key | this.loadModule(key) };
-		this.processAll(modules.asArray, *args);
-		if(objects.isEmpty.not){
+		if(modules.isEmpty.not){
 			labels.do { | item |
 				processor.label = processor.label++item++"_";
 			};
-			processor.add(*objects);
+			processor.add(*modules.asArray);
 			processor.label = "";
 		}
 	}
