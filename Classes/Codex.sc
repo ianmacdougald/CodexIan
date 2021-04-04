@@ -1,11 +1,4 @@
-//No need for CodexHybrid or CodexProcessor
-//Find a way to add and rename SynthDefs when evaluating a CodexModule
-//Basically, just pass the class name and moduleset to the CodexModules
-//To pass to each object
-
-//This doesn't address the issue of removing SynthDefs...
-
-CodexComposite {
+Codex {
 	classvar <directory, id = 'scmodules', cache;
 	var <moduleSet, <modules, <>know = true;
 
@@ -34,12 +27,11 @@ CodexComposite {
 	}
 
 	*new { | moduleSet, from |
-		^this.basicNew(moduleSet).initCodex(from);
+		^this.basicNew(moduleSet)
+		.loadModules(from).initCodex;
 	}
 
-	initCodex { | from |
-		this.loadModules(from).initComposite;
-	}
+	initCodex { }
 
 	loadModules { | from |
 		modules = this.class.getModules(moduleSet, from);
