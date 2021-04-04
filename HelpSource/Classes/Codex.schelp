@@ -1,13 +1,13 @@
-TITLE::CodexComposite
-summary::Abstract superclass of modular composite classes
+TITLE::Codex
+summary::Abstract superclass for modular class interfaces
 categories::Libraries>Codices
-related::Classes/CodexHybrid, Guides/Codices
-keyword::composite, compositing, codexian, composition
+related::Guides/Codices
+keyword::codex
 
 DESCRIPTION::
-CodexComposite establishes a workflow both for developing and interacting with objects that are comprised of interconnected scriptable modules. The class organizes collections of modules within a directory that it maintains, providing a simple interface for manipulating these collections—by loading them, unloading them, cloning them, and generating them from templates (see link::Classes/CodexTemplater::). In this way, each Codex-typed class is free to focus on defining interesting behaviors for its respective modules rather than dealing with the pesky details of their storage and management.
+Codex establishes a workflow both for developing and interacting with objects that are comprised of interconnected scriptable modules. The class organizes collections of modules within a directory that it maintains, providing a simple interface for manipulating these collections—by loading them, unloading them, cloning them, and generating them from templates (see link::Classes/CodexTemplater::). In this way, each Codex-typed class is free to focus on defining interesting behaviors for its respective modules rather than dealing with the pesky details of their storage and management.
 
-note::CodexComposite should not be instantiated. Rather, it is meant to encapsulate behaviors on behalf of its subclasses. So instance those instead.
+note::Codex should not be instantiated. Rather, it is meant to encapsulate behaviors on behalf of its subclasses. So instance those instead.
 ::
 
 CLASSMETHODS::
@@ -23,16 +23,16 @@ A string or symbol representing a relative path or a string representing an abso
 method::basicNew 
 Creates a new instance without loading modules. 
 
-After creation, use the instance method link::Classes/CodexComposite#-initCodex#initCodex:: to initialize the modules.
+After creation, use the instance method link::Classes/Codex#-initCodex#initCodex:: to initialize the modules.
 method::directory
-Gets and (persistently) sets the path to the directory of modules for all subclasses of CodexComposite. For further details, see link::Classes/CodexStorage::.
-note::Before using a subclass of CodexComposite for the first time, be sure to configure the path to the directory of modules. This can be done either through the interface of CodexComposite or any of its subclasses. However, any change made will affect all subclasses of CodexComposite.
+Gets and (persistently) sets the path to the directory of modules for all subclasses of Codex. For further details, see link::Classes/CodexStorage::.
+note::Before using a subclass of Codex for the first time, be sure to configure the path to the directory of modules. This can be done either through the interface of Codex or any of its subclasses. However, any change made will affect all subclasses of Codex.
 code::
 //Check where the directory is.
-CodexComposite.directory.postln;
+Codex.directory.postln;
 
 //Replace this path with something you prefer.
-CodexComposite.directory = "~/Documents/scmodules".standardizePath;
+Codex.directory = "~/Documents/scmodules".standardizePath;
 ::
 ::
 
@@ -40,7 +40,7 @@ private::defaultDirectory
 private::checkDefaults
 
 method::classFolder
-Gets the path to the folder where all of the collections of modules for a given composite-typed class are stored.
+Gets the path to the folder where all of the collections of modules for a given Codex-typed class are stored.
 
 method::moduleSets
 Gets the names of the moduleSets that currently exist for the class.
@@ -50,14 +50,14 @@ Gets a link::Classes/Dictionary:: storing sets of modules.
 method::clearCache
 Clears the cache, forcing the class to reload the modules from scripts the next time a given set is requested.
 method::allCaches
-Gets the instance link::Classes/CodexCache:: that stores each cache on behalf of the subclasses of CodexComposite.
+Gets the instance link::Classes/CodexCache:: that stores each cache on behalf of the subclasses of Codex.
 private::addModules
 private::asPath
 private::copyFiles
 private::copyModules
 private::copyVersions
 method::contribute
-Manages versions of pre-configured modules that are shipped with a class inheriting from CodexComposite. 
+Manages versions of pre-configured modules that are shipped with a class inheriting from Codex. 
 note::
 To make a contribution, overwrite this method by adding an array to the versions list with a symbol or string representing the name of the pre-configured set of modules and a path to their location like this:
 
@@ -110,7 +110,7 @@ method::moduleSets
 Gets the moduleSets that currently exist for the class.
 
 method::addModule
-Adds a module to link::Classes/CodexComposite#-modules#-modules:: by creating a new teletype::.scd:: file in the modules' folder and then calls link::Classes/CodexComposite#-reloadScripts#-reloadScripts::.
+Adds a module to link::Classes/Codex#-modules#-modules:: by creating a new teletype::.scd:: file in the modules' folder and then calls link::Classes/Codex#-reloadScripts#-reloadScripts::.
 argument::moduleName
 A symbol
 argument::templateType
