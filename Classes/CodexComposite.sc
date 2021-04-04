@@ -1,3 +1,10 @@
+//No need for CodexHybrid or CodexProcessor
+//Find a way to add and rename SynthDefs when evaluating a CodexModule
+//Basically, just pass the class name and moduleset to the CodexModules
+//To pass to each object
+
+//This doesn't address the issue of removing SynthDefs...
+
 CodexComposite {
 	classvar <directory, id = 'scmodules', cache;
 	var <moduleSet, <modules, <>know = true;
@@ -13,7 +20,7 @@ CodexComposite {
 				+/+"scmodules"
 			);
 		};
-		cache = CodexCache.new;
+		cache = Dictionary.new;
 		this.allSubclasses.do({ | class |
 			Class.initClassTree(class);
 			class.copyVersions;
@@ -39,64 +46,35 @@ CodexComposite {
 	}
 
 	*getModules { | set, from |
-		if(this.notAt(set) and: { this.shouldAdd(set, from) }, {
+		var dict = this.cache;
+		var path = this.classFolder+/+set;
+
+		dict ?? {
+			dict = Dictionary.new;
+			cache.add(this.name -> dict);
+		};
+
+		if(dict[set].isNil){
+			if(path.exists.not){
+				path.mkdir;
+				from !? {
+					dict.add(set -> this.getModules(from));
+					fork { (from+/+set).copyScriptsTo(path) }
+				} ?? { this.makeTemplates(CodexTemplater(path)) };
+			};
 			this.addModules(set);
-		});
-		^cache.modulesAt(this.name, set);
-	}
+		};
 
-	*notAt { | set | ^cache.notAt(this.name, set) }
-
-	*shouldAdd { | set, from |
-		^if(from.notNil, {
-			this.copyModules(set, from);
-			forkIfNeeded { this.processFolders(set, from) };
-			false;
-		}, {
-			this.processFolders(set);
-			true;
-		});
-	}
-
-	*copyModules { | to, from |
-		if(this.notAt(from), { this.addModules(from) });
-		cache.copyEntry(this.name, from, to);
-	}
-
-	*asPath { | input |
-		input = input.asString;
-		if(PathName(input).isRelativePath, {
-			^(this.classFolder+/+input);
-		}, { ^input });
+		^dict[set].deepCopy;
 	}
 
 	*classFolder { ^(this.directory +/+ this.name) }
 
-	*processFolders { | set, from |
-		var folder = this.asPath(set);
-		if(folder.exists.not, {
-			folder.mkdir;
-			if(from.notNil, {
-				this.copyFiles(from, folder);
-			}, { this.template(folder) });
-		});
-	}
-
-	*copyFiles { | from, to |
-		from = this.asPath(from);
-		if(from.exists, {
-			from.copyScriptsTo(to);
-		}, { this.template(to) });
-	}
-
-	*template { | where |
-		this.makeTemplates(CodexTemplater(this.asPath(where)));
-	}
-
 	*makeTemplates { | templater | }
 
 	*addModules { | key |
-		this.cache.add(key -> CodexModules(this.asPath(key)).loadAll);
+		var modules = CodexModules(this.classFolder+/+key).loadAll(this.name, key);
+		this.cache.add(key -> modules);
 	}
 
 	*copyVersions {
@@ -130,8 +108,12 @@ CodexComposite {
 
 	moduleFolder { ^(this.class.classFolder+/+moduleSet) }
 
+	removeModules {
+		try { this.class.cache.removeAt(moduleSet) }
+	}
+
 	reloadScripts {
-		cache.removeModules(this.class.name, moduleSet);
+		this.removeModules;
 		this.moduleSet = moduleSet;
 	}
 
@@ -215,15 +197,12 @@ CodexComposite {
 		})
 	}
 
-	*clearCache { cache.removeAt(this.name).clear }
-
-	*cache {
-		if(this==CodexComposite){
-			Error("CodexComposite has no cache. Did you mean to call 'allCaches' instead?").throw;
-		};
-		^cache.at(this.name);
+	*clearCache {
+		var toClear = cache.removeAt(this.name);
+		toClear !? { toClear.clear };
 	}
 
+	*cache { ^cache.at(this.name) }
 	*allCaches { ^cache }
 
 	doesNotUnderstand { | selector ... args |
@@ -262,18 +241,23 @@ CodexComposite {
 }
 
 CodexModules : Environment {
+	var <processor;
 
 	*new { | folder |
-		^super.new.know_(true).compileFolder(folder);
+		^super.new.initModules(folder);
+	}
+
+	initModules { | folder |
+		this.know_(true);
+		processor = CodexProcessor.new;
+		this.compileFolder(folder);
 	}
 
 	compileFolder { | folder |
 		folder !? {
-			this.use({
-				PathName(folder).files.do { | file |
-					this.compilePath(file.fullPath);
-				};
-			});
+			PathName(folder).files.do { | file |
+				this.compilePath(file.fullPath);
+			};
 		};
 	}
 
@@ -284,44 +268,78 @@ CodexModules : Environment {
 
 	compilePath { | path |
 		var key = this.getKeyFrom(path);
-		this.at(key) ?? {
-			var func = thisProcess.interpreter.compileFile(path);
-			this.addToEnvir(key, func);
-		};
+		this.use({
+			this.at(key) ?? {
+				var func = thisProcess.interpreter.compileFile(path);
+				this.addToEnvir(key, func);
+			};
+		});
 	}
 
 	addToEnvir { | key, func |
 		this.add(key -> CodexModule(key, func));
 	}
 
-	loadAll {
-		this.array.do { | item |
-			if(item.isKindOf(CodexModule)){
-				item.value;
-			}
-		};
+	loadAll { | ... args |
+		var modules = this.keys.select { | key |
+			this.at(key).isKindOf(CodexModule);
+		}.collect { | key | this.loadModule(key) };
+		this.processAll(modules.asArray, *args);
 	}
 
+	processAll { | objects=([]) ... labels |
+		[\objects, objects, \labels, labels].postln;
+		if(objects.isEmpty.not){
+			labels.do { | item |
+				processor.label = processor.label++item++"_";
+			};
+			processor.add(*objects);
+			processor.label = "";
+		}
+	}
+
+	processModule { | object ... labels |
+		labels.do { | item |
+			processor.label = processor.label++item++"_";
+		};
+		processor.add(object);
+		processor.label = "";
+	}
+
+	loadModule { | key ... args|
+		^this.use({
+			this[key] = this[key].value(*args);
+			this[key];
+		});
+	}
+
+	clear {
+		processor.remove(this.asArray);
+		super.clear;
+	}
 }
 
 CodexModule {
-	var <>key, <>func, <envir;
+	var <>key, <>func, <>envir;
 
 	*new { | key, func |
 		^super.newCopyArgs(key, func, currentEnvironment);
 	}
 
-	value { | ... args |
+	load { | ... args |
 		^envir.use({
-			var obj = func.value(*args);
-			envir.add(key -> (obj ? $ ));
-			obj;
+			try { envir.loadModule(key, *args) }{
+				func.value(*args);
+			};
 		});
 	}
 
+	value { | ... args |
+		^func !? { func.value(*args) } ? this;
+	}
+
 	doesNotUnderstand { | selector ... args |
-		try {
-			^this.value.performList(selector, args)
-		} { DoesNotUnderstandError(this, selector, args).throw }
+		^try { this.load(selector, *args) }
+		{ DoesNotUnderstandError(this, selector, args).throw }
 	}
 }
