@@ -1,12 +1,18 @@
-CodexExample : CodexComposite {
+CodexExample : Codex {
 	var player;
-	
-	//initComposite is called immediately after modules are loaded into the class. 
-	//Initialize instance variables here if you don't want to rewrite the constructor.
-	initComposite {}
 
-	*makeTemplates { | templater | 
+	*contribute { | versions |
+		var toQuark = Main.packages.asDict.at(\Codices);
+		var toExample = toQuark+/+"Examples/Modules";
+
+		versions.add(
+			[\example, toExample]
+		);
+	}
+
+	*makeTemplates { | templater |
 		templater.pattern( "sequence" );
+		templater.synthDef( "synthDef" );
 	}
 
 	play { | clock(TempoClock.default) |
@@ -15,8 +21,8 @@ CodexExample : CodexComposite {
 		});
 	}
 
-	stop { 
-		if(player.isPlaying, { 
+	stop {
+		if(player.isPlaying, {
 			player.stop;
 		});
 	}
