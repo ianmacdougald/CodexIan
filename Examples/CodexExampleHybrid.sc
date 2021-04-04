@@ -1,4 +1,4 @@
-CodexExampleHybrid : CodexHybrid {
+CodexExampleHybrid : CodexComposite {
 	var player;
 
 	*contribute { | versions |
@@ -9,10 +9,6 @@ CodexExampleHybrid : CodexHybrid {
 			[\example, toExample]
 		);
 	}
-
-	//initHybrid is called immediately after initComposite, 
-	//which contains the code that makes CodexHybrid work.
-	initHybrid {}
 
 	*makeTemplates { | templater |
 		templater.pattern( "sequence" );
