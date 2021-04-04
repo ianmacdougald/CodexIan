@@ -2,17 +2,15 @@ TITLE::Codices Overview
 summary::List of documented classes that define Codices framework
 categories::Libraries>Codices
 related::Guides/Codices
-keyword::hybrid, composite, composition
+keyword::codex, incrementer, storage, template, templater
 
 Description:: 
 The Codices quark is a framework for developing and interacting with classes that utilize scriptable modules. Below, are the documented classes that make up the basis of that framework. For a summary of how everything works together, see the link::Guides/Codices##guide::.
 
 section::Classes
 definitionlist::
-##link::Classes/CodexComposite::
+##link::Classes/Codex::
 ||The base class for all composite objects. 
-##link::Classes/CodexHybrid::
-||A subclass of CodexComposite that manages link::Classes/SynthDef:: modules.
 ##link::Classes/CodexProcessor::
 ||Manages the loading and unloading of SynthDefs from the server. 
 ##link::Classes/CodexTemplater::
