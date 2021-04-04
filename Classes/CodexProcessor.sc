@@ -1,14 +1,16 @@
+//Think about critical sections: Where we possibly add and remove synthDefs of the same name at the same time.
+
 CodexRoutinizer {
-	var <>server, routine, <synthDefList;
+	var <>server, routine, <list;
 
 	*new { | server(Server.default) |
 		^super.newCopyArgs(server).initRoutinizer;
 	}
 
 	initRoutinizer {
-		synthDefList = List.new;
+		list = List.new;
 		ServerBoot.add({
-			if(synthDefList.notEmpty, {
+			if(list.notEmpty, {
 				routine = this.makeRoutine;
 			});
 		});
@@ -22,52 +24,38 @@ CodexRoutinizer {
 	}
 
 	stop {
-		if(routine.isPlaying, { 
+		if(routine.isPlaying, {
 			routine.stop;
 		});
 	}
 
 	load { | ... synthDefs |
-		synthDefs.flat.do{ | item |
-			this.addSynthDef(item);
-		};
+		synthDefs.select { | item |
+			item.value.isKindOf(SynthDef);
+		} .do { | item | list.add(item.value) }
 	}
 
-	process { | synthDef |
-		this.load(synthDef);
+	process { | ... synthDefs |
+		this.load(*synthDefs);
 		this.run;
 	}
 
-	addSynthDef { | synthDef |
-		if(synthDef.isKindOf(SynthDef), {
-			synthDefList.add(synthDef);
-		});
-	}
-
-	pop { 
-		try { ^synthDefList.removeAt(0) }
+	pop {
+		try { ^list.removeAt(0) }
 		{ ^nil };
 	}
 
 	popAction {
-		var def = this.pop;
-		def !? { this.action(def) };
-		^def;
+		var synthDef = this.pop;
+		synthDef !? { this.action(synthDef) };
+		^synthDef;
 	}
-
-	recheckAction { | synthDef |
-		var bool = this.bool(synthDef);
-		if(bool){ this.action(synthDef) };
-		^bool.not;
-	}
-
-	bool { | synthDef | this.subclassResponsibility(thisMethod) }
 
 	action{ | synthDef | this.subclassResponsibility(thisMethod) }
 
 	makeRoutine {
 		^forkIfNeeded({
-			while({ synthDefList.isEmpty.not }, {
+			while({ list.isEmpty.not }, {
 				this.popAction;
 			});
 		});
@@ -75,25 +63,20 @@ CodexRoutinizer {
 }
 
 CodexAdder : CodexRoutinizer {
-	action { | synthDef | synthDef.add;  }
-
-	bool { | synthDef | ^synthDef.isAdded.not }
+	action { | synthDef | synthDef.add }
 }
 
-CodexSender : CodexAdder {
+CodexSender : CodexRoutinizer {
 	action { | synthDef | synthDef.send(server) }
 }
 
 CodexRemover : CodexRoutinizer {
-	action { |synthDef|
-		synthDef !? { SynthDef.removeAt(synthDef.name) }
-	}
-
-	bool { | synthDef | ^synthDef.isAdded }
+	action { | synthDef | SynthDef.removeAt(synthDef.name) }
 }
 
 CodexProcessor {
 	var <server, adder, remover, sender;
+	var <>label;
 
 	*new{ | server(Server.default) |
 		^super.newCopyArgs(server).initProcessor;
@@ -103,20 +86,39 @@ CodexProcessor {
 		adder = CodexAdder(server);
 		remover = CodexRemover(server);
 		sender = CodexSender(server);
+		this.label = nil;
 	}
 
-	add { | synthDefs | adder.process(synthDefs) }
+	getSynthDefs { | ... arguments |
+		^arguments.select({ | item |
+			item.isKindOf(SynthDef);
+		});
+	}
 
-	send { | synthDefs, targetServer(Server.default) |
+	addLabel { | synthDef |
+		synthDef.name = (label++synthDef.name).asSymbol;
+	}
+
+	labelSynthDefs { | ... synthDefs |
+		synthDefs = this.getSynthDefs(*synthDefs.flat);
+		synthDefs.do({ | synthDef | this.addLabel(synthDef) });
+		^synthDefs;
+	}
+
+	add { | ... synthDefs |
+		adder.process(*this.labelSynthDefs(*synthDefs));
+	}
+
+	send { | server ... synthDefs |
 		forkIfNeeded({
 			var tmp = sender.server;
-			sender.server = targetServer;
-			sender.process(synthDefs);
+			sender.server = server;
+			sender.process(*this.labelSynthDefs(*synthDefs));
 			sender.server = tmp;
 		});
 	}
 
-	remove { | synthDefs | remover.process(synthDefs) }
+	remove { | ... synthDefs | remover.process(*synthDefs) }
 
 	server_{ | newServer |
 		sender.server = remover.server = adder.server = server = newServer;
