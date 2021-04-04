@@ -54,6 +54,7 @@ CodexTemplater {
 
 	*copyFile { | templateName, sourcePath, folder |
 		var to = folder+/+templateName.asString++".scd";
-		try({ File.copy(sourcePath, to) }, { File.copy(sourcePath, to.increment) });
+		try({ File.copy(sourcePath, to) },
+			{ File.copy(sourcePath, to.increment) });
 	}
 }
