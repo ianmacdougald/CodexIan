@@ -51,20 +51,20 @@ tree::
 ::
 
 subsection::Class folders
-Class folders are generated automatically. However, the circumstances regarding when that happens vary. For instance, a class that a contains reference to a preconfigured version of its modules will create both its class folder when sclang is recompiled as well as a subfolder populated with copies of these modules, and this process will be repeated if either of these folders is deleted. If no versions are specified, then once a class is instanced for the first time the framework will generate both the class folder and a folder of modules filled with templates.
+Class folders are generated automatically. However, the circumstances regarding when that happens vary. For instance, a class that contains references to preconfigured versions of its modules will create both its class folder when sclang is recompiled as well as subfolders populated with copies of these modules, and this process will be repeated if any of these folders are deleted. If no versions are specified, then once a class is instanced for the first time the framework will generate both the class folder and a folder of modules filled with templates.
 
 subsection::Module folders
-Modules are stored as teletype::.scd:: files within the subfolders of each class folder; each of these subfolders contains variations of the modules templated by the class. A given class will expect that modules representing specific sclang objects exist but does not need to now emphasis::how:: they exist. As such, the module loaded from the file teletype::default/sequence.scd:: can be different from the one loaded from the file teletype::experimental/sequence.scd:: so long as both scripts return an object of the same type.
+Modules are stored as teletype::.scd:: files within the subfolders of each class folder; each of these subfolders contains variations of the modules templated by the class. A given class will expect that modules representing specific sclang objects exist but does not need to know emphasis::how:: they exist. The module loaded from the file teletype::default/sequence.scd:: can be different from the one loaded from the file teletype::experimental/sequence.scd:: so long as both scripts return an object of the same type.
 
-There is no prescribed limit to the number of modular variations that can exist per class. An instance of a subclass of Codex is told to load one of these collections either by supplying a symbol to the teletype::moduleSet:: argument of link::Classes/Codex#*new:: or by setting the value of the field link::Classes/Codex#-moduleSet::.
+There is no prescribed limit to the number of modular variations that can exist per class. An instance of a subclass of Codex is told to load one of these variatoins either by supplying a symbol to the teletype::moduleSet:: argument of link::Classes/Codex#*new:: or by setting the value of the field link::Classes/Codex#-moduleSet::.
 note::To see all available module sets for a given class, use the method link::Classes/Codex#*moduleSets#*moduleSets::.::
 In both cases, the user has an opportunity to point to a different set of modules by supplying a second argument. If the first set of modules does not exist but the second set does, then the second set will be copied into the first. If the second set also does not exist, both sets will be generated from templates.
 
 subsection::Modules
-When a set of modules is requested for the first time, its associated scripts will be compiled as functions and stored in a cache maintained by Codex. Subsequently, these functions will be evaluated and returned to each instance requesting these modules (see link::Classes/CodexModules::).
+When a set of modules is requested for the first time, its associated scripts will be compiled as functions and stored in a cache maintained by Codex. Subsequently, these functions will be evaluated and returned to each instance that is requesting modules (see link::Classes/CodexModules::).
 
 If the source file a module is edited (and saved), calling link::Classes/Codex#-reloadScripts:: will reload the scripts into the cache before evaluating/copying them into the instance that called the method.
-If multiple instances of the same class exist, their modules can then be updated using the method link::Classes/Codex#-reloadModules::.
+If multiple instances of the class using the same moduleSet exist, their modules can then be updated using the method link::Classes/Codex#-reloadModules::.
 This process does not require recompiling sclang.
 
 subsection::SynthDef names
@@ -74,8 +74,8 @@ SynthDefs are renamed in the following format: teletype::\ClassName_moduleSet_or
 
 
 subsection::Contributing versions of modules.
-Codex supports the ability to ship any of its subclasses class with sets of preconfigured modules. This is done by overwriting the method link::Classes/Codex#*contribute#*contribute::, which is passed a link::Classes/Dictionary:: as an argument.
-Folder paths added to this dictionary will copy their contents to the relevant folder when sclang is recompiled. These modules can then be accessed using the same key that was originally supplied to the dictionary.
+Codex supports the ability to ship any of its subclasses with sets of preconfigured modules. This is done by overwriting the method link::Classes/Codex#*contribute#*contribute::, which is passed a link::Classes/Dictionary:: as an argument.
+Folder paths added to this dictionary will copy their contents to the relevant folders when sclang is recompiled. These modules can then be accessed using the same key that was originally supplied to the dictionary.
 
 If you want to contribute modules you've developed to a project/quark that uses the Codex framework, there are five short steps for doing so:
 
@@ -87,16 +87,15 @@ numberedlist::
 ##Submit a pull request for the project.
 ::
 
-By implementing this framework as a platform that publishes diverse approaches to common projects, my hope is to promote a collaborative music-making process that mirros the ethos of the libre/open-source software movements in which the SuperCollider project itself is developed. More information about the procedures by which one participates either with Codex-based projects or with SuperCollider can be found by visiting the following link:
+By implementing this framework as a platform that publishes diverse approaches to common projects, my hope is to promote a collaborative music-making process that mirros the ethos of the libre/open-source software movements in which the SuperCollider project itself is developed. More information about how to contribute either to Codex-based projects or to SuperCollider can be found with the following link:
 link::https://supercollider.github.io/contributing/::.
 
 
 section::CodexExample
-Developing a class that inherits from Codex is relatively simple. No constructor is needed. The only requirement is that the developer fill out the method link::Classes/Codex#*makeTemplates::, which is passed an instance of link::Classes/CodexTemplater:: as an argument. In fact, it is this method that defines the modules of a class. If you are developing a class that requires a pattern that can be accessed via the key \sequence, then the templater instance must be told to generate a pattern with the name "sequence".
+Developing a class that inherits from Codex is relatively simple. No constructor is needed. The only requirement is that the developer fill out the method link::Classes/Codex#*makeTemplates::, which is passed an instance of link::Classes/CodexTemplater:: as an argument. In fact, it is this method that defines the modules of a class. A class that requires a pattern using the key teletype::\sequence:: must tell the CodexTemplater instance to generate a pattern template with the name "sequence".
 
-A basic implementation of a class that inherits from Codex is displayed below. Two modules are defined — a link::Classes/Pbind:: called teletype::\sequence:: and a link::Classes/SynthDef:: called teletype::\synthDef::, and the class implements two other methods that play and stop the pattern.
+A basic implementation of a class that inherits from Codex is displayed below. Two modules are defined — a link::Classes/Pbind:: called teletype::\sequence:: and a link::Classes/SynthDef:: called teletype::\synthDef::, and the class implements two other methods for playing and stoppig the pattern.
 
-Pay particular attention to the implementation of the link::Classes/Codex#*contribute#contribute:: method.
 code::
 CodexExample : Codex {
 	var player;
@@ -146,7 +145,7 @@ x.modules.postln;
 //See the moduleSets available to the class.
 CodexExample.moduleSets;
 
-//Open up the currently loaded scripts.
+//Open the currently loaded scripts.
 //This is only supported for scide, scvim, and scnvim.
 x.openModules;
 
@@ -157,7 +156,7 @@ x.play;
 //Stop some sounds.
 x.stop;
 
-//If you want to make a new set of modules, that is easy.
+//Make a new set of modules.
 x.moduleSet = \test;
 
 //There are now more moduleSets available to the class.
@@ -199,4 +198,4 @@ x.openModules;
 
 section::But wait! There's more!
 
-For more classes and frameworks that are based on the procedures outlined in this guide, check out the following link::https://github.com/ianmacdougald/CodicesMore##quark::. It is made up of my repository of still-in-the-works tools for composing electronic music, quickly fabricating composite GUIs, making virtual instruments, and more!
+For more classes and frameworks that are based on the procedures outlined in this guide, check out the following link::https://github.com/ianmacdougald/CodicesMore##quark::. It is made up of still-in-the-works tools for composing electronic music, quickly fabricating composite GUIs, making virtual instruments, and more!
