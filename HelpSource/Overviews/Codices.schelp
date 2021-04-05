@@ -5,7 +5,7 @@ related::Guides/Codices
 keyword::codex, incrementer, storage, template, templater
 
 Description::
-The Codices quark establishes a framework for developing and interacting with classes that utilize scriptable modules. Below are the documented classes that make up the basis of that framework. For a summary of how everything works together, see the link::Guides/Codices##guide::.
+The Codices quark establishes a framework for developing class interfaces that use arbitrarily defined scriptable modules. Below is a list of its documented classes. For a summary of how everything works together, see the link::Guides/Codices##guide::.
 
 section::Classes
 definitionlist::
@@ -14,7 +14,7 @@ definitionlist::
 ##link::Classes/CodexProcessor::
 ||Manages the loading and unloading of SynthDefs from the server.
 ##link::Classes/CodexTemplater::
-||Creates templates of teletype::.scd:: files at a target location.
+||Creates templates of teletype::.scd:: files.
 ##link::Classes/CodexStorage::
 ||Persistently stores paths that can be accessed via link::Classes/Symbol:: keys.
 ##link::Classes/CodexIncrementer::
