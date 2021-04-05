@@ -36,7 +36,7 @@ CodexRoutinizer {
 	}
 
 	process { | ... synthDefs |
-		this.load(*synthDefs);
+		this.load(*synthDefs.flat);
 		this.run;
 	}
 
