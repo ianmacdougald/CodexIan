@@ -282,7 +282,7 @@ CodexModules : Environment {
 	loadAll { | ... labels |
 		var modules = this.keys.select { | key |
 			this.at(key).isKindOf(CodexModule);
-		}.collect { | key | this.loadModule(key) };
+		}.collect { | key | this.unpackModule(key) };
 		if(modules.isEmpty.not){
 			labels.do { | item |
 				processor.label = processor.label++item++"_";
@@ -292,7 +292,7 @@ CodexModules : Environment {
 		}
 	}
 
-	loadModule { | key ... args|
+	unpackModule { | key ... args|
 		^this.use({
 			this[key] = this[key].value(*args);
 			this[key];
@@ -312,9 +312,9 @@ CodexModule {
 		^super.newCopyArgs(key, func, currentEnvironment);
 	}
 
-	load { | ... args |
+	unpack { | ... args |
 		^envir.use({
-			try { envir.loadModule(key, *args) }{
+			try { envir.unpackModule(key, *args) }{
 				func.value(*args);
 			};
 		});
@@ -325,7 +325,7 @@ CodexModule {
 	}
 
 	doesNotUnderstand { | selector ... args |
-		^try { this.load(selector, *args) }
+		^try { this.unpack(selector, *args) }
 		{ DoesNotUnderstandError(this, selector, args).throw }
 	}
 }
