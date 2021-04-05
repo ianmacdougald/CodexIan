@@ -20,10 +20,9 @@ A string or symbol representing a relative path or a string representing an abso
 argument::from
 A string or symbol representing a relative path or a string representing an absolute path to a folder to clone a new set of modules from.
 
-method::basicNew 
-Creates a new instance without loading modules. 
+method::basicNew
+Creates a new instance without loading modules.
 
-After creation, use the instance method link::Classes/Codex#-initCodex#initCodex:: to initialize the modules.
 method::directory
 Gets and (persistently) sets the path to the directory of modules for all subclasses of Codex. For further details, see link::Classes/CodexStorage::.
 note::Before using a subclass of Codex for the first time, be sure to configure the path to the directory of modules. This can be done either through the interface of Codex or any of its subclasses. However, any change made will affect all subclasses of Codex.
@@ -43,51 +42,45 @@ method::classFolder
 Gets the path to the folder where all of the collections of modules for a given Codex-typed class are stored.
 
 method::moduleSets
-Gets the names of the moduleSets that currently exist for the class.
+Gets the names of the moduleSets that currently exist for a given class.
 
 method::cache
-Gets a link::Classes/Dictionary:: storing sets of modules.
+Gets the link::Classes/Dictionary:: that is storing the class's loaded sets of modules.
 method::clearCache
 Clears the cache, forcing the class to reload the modules from scripts the next time a given set is requested.
-method::allCaches
-Gets the instance link::Classes/CodexCache:: that stores each cache on behalf of the subclasses of Codex.
 private::addModules
 private::asPath
 private::copyFiles
 private::copyModules
 private::copyVersions
 method::contribute
-Manages versions of pre-configured modules that are shipped with a class inheriting from Codex. 
+A private method for internal use only that manages versions of pre-configured modules to be distributed with a class inheriting from Codex.
+
 note::
-To make a contribution, overwrite this method by adding an array to the versions list with a symbol or string representing the name of the pre-configured set of modules and a path to their location like this:
+To make a contribution, overwrite this method by adding link::Classes/Association##assocations:: to the dictionry argument like so. This allows modules to be distributed with quarks and be made available to users with despite their unique configurations.
 
 code::
-	*contribute { | versions | 
-		versions.add([\example, "/Path/To/Example/Modules"]);
+*contribute { | versions |
+	versions.add(\example -> "Path/To/Modules");
 
-		versions.add([\anotherExample, "/Another/Example/Path"]);
-	}
-	
+	versions.add(\anotherExample -> "Another/Path/Here");
+}
 ::
 ::
+
 argument::versions
-A link::Classes/List:: to which a developer can add their contribution. 
-private::isVersion
+A link::Classes/Dictionary::.
+
 private::getModules
 private::loadScripts
 private::makeTemplates
-private::notAt
-private::processFolders
 private::scriptKey
-private::shouldAdd
-private::template
 
 INSTANCEMETHODS::
 method::moduleFolder
 Gets the path to the folder where the modules currently loaded into the instance are stored.
 
 private::loadModules
-private::initComposite
 
 method::modules
 Gets an link::Classes/Event:: containing the loaded modules.
@@ -109,13 +102,6 @@ A symbol referring to an existing set of modules to copy if the new module name 
 method::moduleSets
 Gets the moduleSets that currently exist for the class.
 
-method::addModule
-Adds a module to link::Classes/Codex#-modules#-modules:: by creating a new teletype::.scd:: file in the modules' folder and then calls link::Classes/Codex#-reloadScripts#-reloadScripts::.
-argument::moduleName
-A symbol
-argument::templateType
-A symbol corresponding to one of the available templating methods of link::Classes/CodexTemplater::.
-
 method::open
 argument::... keys
 The symbols or string specifying which modules' files should be opened.
@@ -124,31 +110,31 @@ method::open_scqt
 argument::... keys
 The symbols or string specifying which modules' files should be opened.
 
-method::open_scvim 
+method::open_scvim
 Open a single module or group of modules using scvim.
 argument::shell
 A String representing the name of the shell to use to open vim/nvim.
 argument::neovim
-A link::Classes/Boolean:: determining whether to use scvim or scnvim. 
+A link::Classes/Boolean:: determining whether to use scvim or scnvim.
 argument::vertically
 A Boolean determining if modules files will be opened vertically or horizontally.
-argument::... keys 
+argument::... keys
 The symbols or string specifying which modules' files should be opened.
 
 method::openModules
 Open all of the modules' associated scripts.
 
 method::closeModules
-Close all of the open module files. 
+Close all of the open module files.
 note::This is only implemented for scqt.::
 
 private::doesNotUnderstand
-method::know 
+method::know
 If set to true, the instance interprets method calls as look-ups in the collection of modules. This behavior is similar to link::Classes/IdentityDictionary#-know::
 
-method::initCodex
-Loads the modules into the instance.
-argument::from
-A string or symbol representing a relative path or a string representing an absolute path to a folder to clone a new set of modules from.
+private::initCodex
+
+
+private::removeModules
 
 
