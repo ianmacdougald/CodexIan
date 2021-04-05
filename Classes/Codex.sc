@@ -106,7 +106,7 @@ Codex {
 	moduleSet_{ | newSet, from |
 		moduleSet = newSet;
 		this.loadModules(from);
-		this.initComposite;
+		this.initCodex;
 	}
 
 	*moduleSets {
