@@ -77,33 +77,18 @@ Codex {
 	}
 
 	*copyVersions {
-		var versions = List.new;
+		var versions = Dictionary.new;
 		this.contribute(versions);
-		versions.do { | entry |
-			if(this.isVersion(entry), {
-				var folder = this.classFolder+/+entry[0].asString;
-				if(folder.exists.not, {
-					entry[1].copyScriptsTo(folder.mkdir);
-				})
-			});
-		}
-	}
-
-	*isVersion { | entry |
-		^(
-			entry.isCollection
-			and: { entry.isString.not }
-			and: {
-				entry.select({ | item |
-					item.isString or: { item.isKindOf(Symbol)}
-				}).size >= 2
-			}
-		);
+		versions = versions.asPairs;
+		forBy(1, versions.size - 1, 2, { | index |
+			var folder = this.classFolder+/+versions[index - 1];
+			if(folder.exists.not){
+				versions[index].copyScriptsTo(folder.mkdir);
+			};
+		});
 	}
 
 	*contribute { | versions | }
-
-	initComposite {}
 
 	moduleFolder { ^(this.class.classFolder+/+moduleSet) }
 
@@ -202,7 +187,6 @@ Codex {
 	}
 
 	*cache { ^cache.at(this.name) }
-	*allCaches { ^cache }
 
 	doesNotUnderstand { | selector ... args |
 		if(know, {
@@ -227,15 +211,6 @@ Codex {
 			});
 		});
 		^this.superPerformList(\doesNotUnderstand, selector, args);
-	}
-
-	addModule { | moduleName, templateType(\blank) |
-		moduleName ?? { Error("No name specified").throw };
-		if(modules[moduleName].isNil, {
-			CodexTemplater(this.moduleFolder)
-			.perform(templateType, moduleName);
-			this.reloadScripts;
-		}, { warn("Module already exists.") });
 	}
 }
 
