@@ -4,12 +4,10 @@ Codex {
 
 	*initClass {
 		Class.initClassTree(CodexStorage);
-		directory = CodexStorage.at(id) ?? {
-			CodexStorage.setAt(
-				id,
-				Main.packages.asDict.at(\Codices)
-				+/+"scmodules"
-			);
+		directory = CodexStorage.at(id) ?? { 
+			var path = Main.packages.asDict.at(\Codices)+/+id; 
+			CodexStorage.add(id -> path);
+			path;
 		};
 		cache = Dictionary.new;
 		this.allSubclasses.do({ | class |
@@ -110,7 +108,7 @@ Codex {
 	moduleSets { ^this.class.moduleSets }
 
 	*directory_{ | newPath("~/".standardizePath) |
-		directory = CodexStorage.setAt(id, newPath);
+		directory = CodexStorage.add(id -> newPath);
 	}
 
 	open { | ... keys |

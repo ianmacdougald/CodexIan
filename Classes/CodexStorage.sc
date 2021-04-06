@@ -14,39 +14,31 @@ CodexStorage  {
 		Class.initClassTree(Collection);
 		storagePath = Main.packages.asDict.at('Codices')
 		+/+format("%.yaml", this.name);
-		this.checkDictionary;
+		this.getDictionary;
 	}
 
-	*checkDictionary {
-		if(dictionary.isNil){
-			dictionary = storagePath.parseYAMLFile;
-			if(dictionary.isNil,
-				{ dictionary = Dictionary.new },
-				{ dictionary = dictionary.withSymbolKeys }
-			);
-		};
+	*getDictionary {
+		dictionary = storagePath.parseYAMLFile ? Dictionary.new;
+		dictionary.useSymbolKeys;
 	}
 
-	*setAt { | key, item |
-		if((dictionary[key]==item).not, {
-			dictionary.add(key->item.asString);
-			this.write(dictionary);
-		});
-		^dictionary[key];
+	*add { | association |
+		dictionary.add(association);
+		this.write(dictionary);
 	}
 
 	*at { | key | ^dictionary[key] }
 
 	*removeAt { | key |
-		dictionary.removeAt(key);
+		var object = dictionary.removeAt(key);
 		this.write(dictionary);
+		^object;
 	}
 
 	*keys { ^dictionary.keys }
 }
 
 + String {
-
 	*codexStorageEnabled_{ | bool(true) |
 		CodexStorage.setAt('__ENABLE_STRING_PSEUDOS__', bool);
 	}
@@ -77,7 +69,7 @@ CodexStorage  {
 		if(bool.notNil and: { bool.interpret }){
 			if(selector.isSetter){
 				selector = selector.asGetter;
-				CodexStorage.setAt(selector, args[0]);
+				CodexStorage.add(selector -> args[0]);
 			};
 			^this.fromCodexStorage(selector);
 		};

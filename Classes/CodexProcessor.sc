@@ -106,6 +106,6 @@ CodexProcessor {
 	remove { | ... synthDefs | remover.process(*synthDefs) }
 
 	server_{ | newServer |
-		sender.server = remover.server = adder.server = server = newServer;
+		remover.sever = adder.server = server = newServer;
 	}
 }
