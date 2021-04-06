@@ -1,5 +1,5 @@
-//Think about critical sections: Where we possibly add and remove synthDefs of the same name at the same time.
-
+//TODO:
+//1. Think about critical sections in CodexProcessor
 CodexRoutinizer {
 	var <>server, routine, <list;
 
