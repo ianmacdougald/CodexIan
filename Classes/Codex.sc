@@ -154,9 +154,9 @@ Codex {
 		if(neovim, { cmd = $n++cmd });
 		if(vertically, { cmd = cmd++" -o "}, { cmd = cmd++" -O " });
 		paths.do{ | path | cmd=cmd++path};
-		if(\GnomeTerminal.asClass.notNil, {
-			cmd.perform(\runInGnomeTerminal, shell);
-		}, { cmd.perform(\runInTerminal, shell) });
+		if(cmd.runInGnome(shell).not){
+			cmd.runInTerminal(shell);
+		};
 	}
 
 	openModules { this.open(keys: modules.keys.asArray.sort) }
