@@ -4,8 +4,8 @@ Codex {
 
 	*initClass {
 		Class.initClassTree(CodexStorage);
-		directory = CodexStorage.at(id) ?? { 
-			var path = Main.packages.asDict.at(\Codices)+/+id; 
+		directory = CodexStorage.at(id) ?? {
+			var path = Main.packages.asDict.at(\Codices)+/+id;
 			CodexStorage.add(id -> path);
 			path;
 		};
@@ -113,8 +113,7 @@ Codex {
 
 	open { | ... keys |
 		var ide = Platform.ideName;
-		keys = keys.flat;
-		case { ide=="scqt" }{ this.open_scqt(keys: keys) }
+		case { ide=="scqt" }{ this.open_scqt(*keys) }
 		{ ide=="scnvim" }{
 			var shell = "echo $SHELL".unixCmdGetStdOut.split($/).last;
 			shell = shell[..(shell.size - 2)];
@@ -139,19 +138,17 @@ Codex {
 		});
 	}
 
-	open_scvim {
-		| shell("sh"), neovim(false), vertically(false) ...keys |
+	open_scvim { | shell("sh"), neovim(false), vertically(false) ... keys |
 		var cmd = "vim", paths = "";
-		keys.do({ | item |
-			var current = this.moduleFolder+/+item.asString++".scd";
-			if(File.exists(current))
-			{
+		keys.do({ | key |
+			var current = this.moduleFolder+/+key.asString++".scd";
+			if(File.exists(current)){
 				paths = paths++current++" ";
 			};
 		});
 		if(neovim, { cmd = $n++cmd });
 		if(vertically, { cmd = cmd++" -o "}, { cmd = cmd++" -O " });
-		paths.do{ | path | cmd=cmd++path};
+		paths.do{ | path | cmd=cmd++path };
 		if(cmd.runInGnome(shell).not){
 			cmd.runInTerminal(shell);
 		};
@@ -161,9 +158,9 @@ Codex {
 
 	closeModules {
 		if(Platform.ideName=="scqt", {
-			if(\Document.asClass.notNil, {
-				\Document.asClass.perform(\allDocuments).do {
-					| doc, index |
+			var document = \Document.asClass;
+			if(document.notNil, {
+				document.perform(\allDocuments).do { | doc, index |
 					if(doc.dir==this.moduleFolder, {
 						doc.close;
 					});
@@ -209,20 +206,17 @@ CodexModules : Environment {
 	var <processor;
 
 	*new { | folder |
-		^super.new.initModules(folder);
+		^super.new.know_(true).initModules(folder);
 	}
 
 	initModules { | folder |
-		this.know_(true);
 		processor = CodexProcessor.new;
 		this.compileFolder(folder);
 	}
 
 	compileFolder { | folder |
-		folder !? {
-			PathName(folder).files.do { | file |
-				this.compilePath(file.fullPath);
-			};
+		PathName(folder).files.do { | file |
+			this.compilePath(file.fullPath);
 		};
 	}
 
@@ -292,6 +286,6 @@ CodexModule {
 
 	doesNotUnderstand { | selector ... args |
 		^try { this.unpack(selector, *args) }
-		{ DoesNotUnderstandError(this, selector, args).throw }
+		{ this.superPerformList(\doesNotUnderstand, selector, args); }
 	}
 }
