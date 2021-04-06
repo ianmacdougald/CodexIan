@@ -20,15 +20,10 @@ Codex {
 		});
 	}
 
-	*basicNew { | moduleSet, from |
+	*new { | moduleSet, from |
 		^super.newCopyArgs(
 			moduleSet ?? { Error("No module set specified").throw }
-		);
-	}
-
-	*new { | moduleSet, from |
-		^this.basicNew(moduleSet)
-		.loadModules(from).initCodex;
+		).loadModules(from).initCodex;
 	}
 
 	initCodex { }
