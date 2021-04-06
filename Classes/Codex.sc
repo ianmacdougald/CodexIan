@@ -3,9 +3,7 @@ Codex {
 	var <moduleSet, <modules, <>know = true;
 
 	*initClass {
-		Class.initClassTree(Dictionary);
 		Class.initClassTree(CodexStorage);
-		Class.initClassTree(List);
 		directory = CodexStorage.at(id) ?? {
 			CodexStorage.setAt(
 				id,
