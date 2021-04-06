@@ -1,18 +1,18 @@
 + Dictionary {
 	asYAMLString {
 		var string = "";
-		this.keysValuesDo({|key, value, index|
+		this.keysValuesDo({ | key, value, index |
 			string = string++format("%: %\n", key, value);
 		});
 		^string;
 	}
 
 	withSymbolKeys {
-		var newDictionary = Dictionary.new;
-		this.keysValuesDo({|key, value|
-			newDictionary.add(key.asSymbol -> value);
+		var dict = this.class.new;
+		this.keysValuesDo({ | key, value |
+			dict.add(key.asSymbol -> value);
 		});
-		^newDictionary;
+		^dict;
 	}
 }
 
@@ -23,8 +23,4 @@
 	}
 }
 
-+ IdentityDictionary {
-	withSymbolKeys {
-		^super.withSymbolKeys.as(this.class);
-	}
-}
+
