@@ -66,16 +66,12 @@ CodexAdder : CodexRoutinizer {
 	action { | synthDef | synthDef.add }
 }
 
-CodexSender : CodexRoutinizer {
-	action { | synthDef | synthDef.send(server) }
-}
-
 CodexRemover : CodexRoutinizer {
 	action { | synthDef | SynthDef.removeAt(synthDef.name) }
 }
 
 CodexProcessor {
-	var <server, adder, remover, sender;
+	var <server, adder, remover;
 	var <>label;
 
 	*new{ | server(Server.default) |
@@ -85,7 +81,6 @@ CodexProcessor {
 	initProcessor {
 		adder = CodexAdder(server);
 		remover = CodexRemover(server);
-		sender = CodexSender(server);
 	}
 
 	getSynthDefs { | ... arguments |
@@ -106,15 +101,6 @@ CodexProcessor {
 
 	add { | ... synthDefs |
 		adder.process(*this.labelSynthDefs(*synthDefs));
-	}
-
-	send { | server ... synthDefs |
-		forkIfNeeded({
-			var tmp = sender.server;
-			sender.server = server;
-			sender.process(*this.labelSynthDefs(*synthDefs));
-			sender.server = tmp;
-		});
 	}
 
 	remove { | ... synthDefs | remover.process(*synthDefs) }
