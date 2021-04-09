@@ -33,6 +33,7 @@ Gets and sets the template from which filenames are incremented.
 method::folder
 Gets and sets the folder where the instance looks for created filenames to increment.
 
+private::decrement
 private::nextFileName
 private::formatFileName
 EXAMPLES::
@@ -45,11 +46,11 @@ f = CodexIncrementer.new(
 f.increment.postln;
 )
 
-//We do not continue to increment if the filepath does not exist (yet).
+//The incrementer remains constant until a new file is made.
 f.increment.postln;
 
 (
-//But if the file is made...
+//But once that new file is made...
 s.waitForBoot({
 	fork{
 		var synth;
@@ -63,13 +64,13 @@ s.waitForBoot({
 });
 )
 
-//...we increment again.
+//...the incrementer returns a new value.
 f.increment.postln;
 
 (
-//If a file is added with a number at the end of it, incrementing starts from there.
+//If a path is added with a number at the end of it, incrementing starts from there.
 f = CodexIncrementer.new(
-	"some-other-file-1.wav",
+	"some-other-file-256.wav",
 	"~/Desktop".standardizePath
 );
 f.increment.postln;
