@@ -1,8 +1,8 @@
 TITLE::CodexTemplater
 summary::Generator of .scd files from templates of code
 categories::Libraries>Codices
-related::Classes/CodexIncrementer, Classes/CodexComposite
-keyword::template, codexian, compositing, utilities, codexian utilities
+related::Classes/CodexIncrementer, Overviews/Codices
+keyword::codices, codex, templates, template, templater
 
 DESCRIPTION::
 CodexTemplater creates teletype::.scd:: files with code templates for the following classes:
@@ -18,16 +18,16 @@ list::
 ## link::Classes/Buffer::
 ::
 
-However, if a situation arises in which a composite needs templates from different objects or combinations of objects, like a function that returns an array of events, CodexTemplater can be easily link::#Extending CodexTemplater#extended::.
+If a situation arises in which templates are needed from other objects or even combinations of objects, CodexTemplater can be easily link::#Extending CodexTemplater#extended::.
 
-CodexTemplater was originally designed to work within the link::Classes/CodexComposite:: framework. To see it in action, refer to this link::Guides/Codices##guide::.
+CodexTemplater was originally designed to operate inside link::Classes/Codex::. To see how this works,  refer to this link::Guides/Codices##guide::.
 CLASSMETHODS::
 
 method::new
 Creates a new instance of CodexTemplater.
 
 argument::folder
-A string representing a path to the folder where templates will be stored.
+A string pointing to a directory where templates will be generated.
 
 private::modulePathString
 private::moduleTemplateDir
@@ -40,16 +40,16 @@ private::defaultPath
 
 INSTANCEMETHODS::
 method::makeTemplate
-Copies a .scd file to the target folder with a defineable name from a source file. 
+Copies the file at the source to link::Classes/CodexTemplater#-folder::.
 argument::templateName
-A string representing the name of the template file to be made. 
+The new name of the file that will be copied.
 argument::sourcePath
-A string representing a path to a .scd file to be copied.
+A string pointing to a preexisting .scd file.
 private::setTemplateDir
 private::resetTemplateDir
 
 method::folder
-Gets and sets the string representing the path to the folder where templates are to be stored.
+Gets and sets a string pointing to where templates will be generated.
 
 subsection::Templating methods
 method::synthDef
@@ -137,11 +137,12 @@ File.deleteAll("~/Desktop/_secondTemplateTest".standardizePath);
 ::
 
 anchor::ExtendingCodexTemplater::
-section::Extending CodexTemplater 
-Because situations may arise in which it is necessary to have templates for objects not defined by default, CodexTemplater can be easily made to template any arbitrary code. The method link::Classes/CodexTemplater#-makeTemplate#-makeTemplate:: does this by taking two arguments—the name of the template to be created and a string representing the path to template's the source file. That said, if you think the script being templated is of general use, write an extension for CodexTemplater to simplify this process. The following is an example of how to implement this: 
-code:: 
-+ CodexTemplater { 
-	customTemplate { | templateName("custom") | 
+section::Extending CodexTemplater
+Because the method link::Classes/CodexTemplater#-makeTemplate#-makeTemplate:: simply copies a file from one place to another, CodexTemplater can easily be made to template arbitrary SuperCollider code. To incorporate a new template into the CodexTemplater interface, just extend it like so:
+
+code::
++ CodexTemplater {
+	customTemplate { | templateName("custom") |
 		this.makeTemplate(templateName, "/Some/Folder/customTemplate.scd")
 	}
 }
