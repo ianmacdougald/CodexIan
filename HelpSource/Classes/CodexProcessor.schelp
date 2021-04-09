@@ -1,11 +1,10 @@
 TITLE::CodexProcessor
 summary::Manager for loading and unloading of SynthDefs from a server
 categories::Libraries>Codices
-related::Classes/Codex, Classes/CodexModules
-keyword::codexian, utilities, synthdef, processor, codexian utlities
-
+related::Classes/CodexModules, Overviews/Codices
+keyword::codex, codices, synthDef, processor
 DESCRIPTION::
-CodexProcessor is responsible for loading and unloading SynthDef objects from a given server.
+CodexProcessor is responsible for loading and unloading link::Classes/SynthDef:: objects from a given server.
 
 CLASSMETHODS::
 method::new
@@ -13,9 +12,6 @@ Creates a new instance of CodexProcessor
 
 INSTANCEMETHODS::
 private::initProcessor
-
-method::send
-Sends a SynthDef or collection of SynthDef objects to an arbitrary server.
 
 method::add
 link::Classes/SynthDef#-add#Adds:: a SynthDef or a collection of SynthDef objects.
@@ -25,6 +21,11 @@ Remove a SynthDef or a collection of SynthDef objects from the server.
 
 method::server
 Gets and sets the server.
+
+private::addLabel
+private::getSynthDefs
+private::label
+private::labelSynthDefs
 
 EXAMPLES::
 code::
@@ -56,7 +57,7 @@ p.remove(d);
 x = Synth(\someSynthDef);
 ::
 
-CodexProcessorr can also accept collections of SynthDef objects to process all at once.
+CodexProcessor can also accept collections of SynthDef objects to process all at once.
 code::
 (
 //1. Instance a CodexProcessor.
