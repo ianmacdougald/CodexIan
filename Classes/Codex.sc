@@ -105,8 +105,6 @@ Codex {
 		.collectAs({ | m | m.folderName.asSymbol }, Set);
 	}
 
-	moduleSets { ^this.class.moduleSets }
-
 	*directory_{ | newPath("~/".standardizePath) |
 		directory = CodexStorage.add(id -> newPath);
 	}
