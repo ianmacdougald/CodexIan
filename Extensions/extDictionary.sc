@@ -1,26 +1,17 @@
 + Dictionary {
 	asYAMLString {
 		var string = "";
-		this.keysValuesDo({|key, value, index|
+		this.keysValuesDo { | key, value, index |
 			string = string++format("%: %\n", key, value);
-		});
+		};
 		^string;
 	}
 
-	useSymbolKeys {
-		forBy(0, this.array.size - 2, 2, { | index |
-			if(array[index].isString){
-				array[index] = array[index].asSymbol;
-			};
-		});
+	withSymbolKeys {
+		var newDict = Dictionary.new;
+		this.keysValuesDo { | key, value |
+			newDict.add(key.asSymbol -> value);
+		};
+		^newDict;
 	}
 }
-
-+ Object {
-	asYAMLString {
-		var str = this.asString;
-		^format("%: %\n", str, str);
-	}
-}
-
-
