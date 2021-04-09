@@ -1,5 +1,5 @@
 CodexStorage  {
-	classvar <dictionary, <storagePath;
+	classvar dictionary, storagePath;
 
 	*write { | item |
 		var fd = File.open(storagePath, "w+");

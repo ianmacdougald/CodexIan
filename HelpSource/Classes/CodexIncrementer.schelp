@@ -1,7 +1,7 @@
 TITLE:: CodexIncrementer
 summary::Generator of incrementally unique filenames
 categories::Libraries>Codices
-related::Classes/CodexTemplater, Classes/CodexStorage
+related::Classes/CodexTemplater, Overviews/Codices
 keyword:: codexian utilities, codexian, utilities, file, increment, codexian path
 
 DESCRIPTION::

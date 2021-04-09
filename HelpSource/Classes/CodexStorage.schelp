@@ -14,15 +14,8 @@ Gets the path stored at the key symbol.
 argument::key
 A symbol.
 
-method::setAt
+method::add
 Sets the path stored at the key symbol.
-argument::key
-A symbol.
-argument::item
-An object to be stored at the key.
-
-returns::
-The object that was set.
 
 method::removeAt
 Removes the path at the symbol key from storage.
@@ -39,6 +32,7 @@ private::pathToQuark
 private::stroagePath
 private::write
 private::storagePath
+private::getDictionary
 
 EXAMPLES::
 code::
