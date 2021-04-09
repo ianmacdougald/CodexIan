@@ -1,8 +1,8 @@
 CodexStorage  {
-	classvar dictionary, <storagePath;
+	classvar dictionary, path;
 
 	*write { | item |
-		var fd = File.open(storagePath, "w+");
+		var fd = File.open(path, "w+");
 		fd.write(item.asYAMLString);
 		fd.close;
 	}
@@ -12,14 +12,14 @@ CodexStorage  {
 		Class.initClassTree(Quarks);
 		Class.initClassTree(Dictionary);
 		Class.initClassTree(Collection);
-		storagePath = Main.packages.asDict.at('Codices')
+		path = Main.packages.asDict.at('Codices')
 		+/+format("%.yaml", this.name);
 		this.getDictionary;
 	}
 
 	*getDictionary {
-		dictionary = storagePath.parseYAMLFile ? Dictionary.new;
-		dictionary.useSymbolKeys;
+		dictionary = path.parseYAMLFile ?? { Dictionary.new };
+		dictionary = dictionary.withSymbolKeys;
 	}
 
 	*add { | association |
@@ -39,34 +39,26 @@ CodexStorage  {
 }
 
 + String {
-	*codexStorageEnabled_{ | bool(true) |
-		CodexStorage.setAt('__ENABLE_STRING_PSEUDOS__', bool);
+	*codexKnow_{ | bool(true) |
+		if(bool.isKindOf(Boolean).not){
+			Error("Can only set to Boolean").throw;
+		};
+		CodexStorage.add('__ENABLE_STRING_PSEUDOS__' -> bool);
 	}
 
-	*codexStorageEnabled {
-		^CodexStorage.at('__ENABLE_STRING_PSEUDOS__');
+	*codexKnow {
+		^(CodexStorage.at('__ENABLE_STRING_PSEUDOS__') ? false);
 	}
 
 	fromCodexStorage { | key |
-		var toPrepend;
-		//If the key is a number, use it to find a symbol
-		if(key.isNumber){
-			var symbols = CodexStorage.keys.asArray;
-			key = symbols[key.asInteger.clip(0, symbols.size - 1)];
-		};
-		//Get the path associated with the key
-		toPrepend = CodexStorage.at(key);
-		//If it exists, return the completed string
-		toPrepend !? {
-			^(toPrepend+/+this);
-		};
-		//Otherwise, return the original string
+		var toPrepend = CodexStorage.at(key);
+		toPrepend !? { ^(toPrepend+/+this) };
 		^this;
 	}
 
 	doesNotUnderstand { | selector ... args |
 		var bool = CodexStorage.at('__ENABLE_STRING_PSEUDOS__');
-		if(bool.notNil and: { bool.interpret }){
+		if(bool.notNil and: { try { bool.interpret }{ bool } }){
 			if(selector.isSetter){
 				selector = selector.asGetter;
 				CodexStorage.add(selector -> args[0]);
