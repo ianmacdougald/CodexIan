@@ -51,16 +51,4 @@ CodexIncrementer {
 	decrement {
 		^this.formatFileName(fileTemplate++(currentIncrement -1));
 	}
-
-	/*	folder_{ | newFolder |
-	folder = newFolder;
-	this.reset;
-	}*/
-
-}
-
-+ PathName {
-	increment {
-		^CodexIncrementer.new(this.fileName, this.pathOnly).increment;
-	}
 }
