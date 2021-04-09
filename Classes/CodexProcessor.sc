@@ -1,7 +1,5 @@
-//TODO:
-//1. Think about critical sections in CodexProcessor
 CodexRoutinizer {
-	var <>server, routine, <list;
+	var <>server, <list;
 
 	*new { | server(Server.default) |
 		^super.newCopyArgs(server).initRoutinizer;
@@ -9,24 +7,7 @@ CodexRoutinizer {
 
 	initRoutinizer {
 		list = List.new;
-		ServerBoot.add({
-			if(list.notEmpty, {
-				routine = this.makeRoutine;
-			});
-		});
-	}
-
-	run {
-		if(server.hasBooted, {
-			this.stop;
-			routine = this.makeRoutine;
-		});
-	}
-
-	stop {
-		if(routine.isPlaying, {
-			routine.stop;
-		});
+		ServerBoot.add({ this.run });
 	}
 
 	load { | ... synthDefs |
@@ -53,12 +34,12 @@ CodexRoutinizer {
 
 	action{ | synthDef | this.subclassResponsibility(thisMethod) }
 
-	makeRoutine {
-		^forkIfNeeded({
-			while({ list.isEmpty.not }, {
+	run {
+		forkIfNeeded {
+			while { list.isEmpty.not }{
 				this.popAction;
-			});
-		});
+			}
+		}
 	}
 }
 
@@ -72,13 +53,14 @@ CodexRemover : CodexRoutinizer {
 
 CodexProcessor {
 	var <server, adder, remover;
-	var <>label;
+	var <>label, semaphore;
 
 	*new{ | server(Server.default) |
 		^super.newCopyArgs(server).initProcessor;
 	}
 
 	initProcessor {
+		semaphore = Semaphore.new(1);
 		adder = CodexAdder(server);
 		remover = CodexRemover(server);
 	}
@@ -100,10 +82,21 @@ CodexProcessor {
 	}
 
 	add { | ... synthDefs |
-		adder.process(*this.labelSynthDefs(*synthDefs));
+		fork {
+			semaphore.wait;
+			adder.process(*this.labelSynthDefs(*synthDefs));
+			semaphore.signal;
+		};
 	}
 
-	remove { | ... synthDefs | remover.process(*synthDefs) }
+	remove { | ... synthDefs |
+		fork {
+			semaphore.wait;
+			server.sync;
+			remover.process(*synthDefs);
+			semaphore.signal;
+		};
+	}
 
 	server_{ | newServer |
 		remover.sever = adder.server = server = newServer;
