@@ -30,15 +30,12 @@ Codex {
 	}
 
 	*getModules { | set, from |
-		var dict = this.cache;
+		var dict = this.cache ?? {
+			cache.add(this.name -> Dictionary.new)[this.name];
+		};
 		var path = this.classFolder+/+set;
 
-		dict ?? {
-			dict = Dictionary.new;
-			cache.add(this.name -> dict);
-		};
-
-		if(dict[set].isNil){
+		dict[set] ?? {
 			if(path.exists){
 				this.addModules(set);
 			} {
@@ -47,11 +44,8 @@ Codex {
 					this.makeTemplates(CodexTemplater(path));
 					this.addModules(set);
 				} {
-					//Copy the modules from 'from' to 'set.'
 					dict.add(set -> this.getModules(from));
-					//Make the associated folders.
-					fork { (this.classFolder+/+from).copyScriptsTo(path) }
-					//Otherwise, load from templates.
+					fork { (this.classFolder+/+from).copyScriptsTo(path) };
 				}
 			};
 		};
@@ -83,32 +77,28 @@ Codex {
 
 	moduleFolder { ^(this.class.classFolder+/+moduleSet) }
 
-	removeModules {
-		try { this.class.cache.removeAt(moduleSet) }
-	}
-
-	reloadScripts {
-		this.removeModules;
-		this.moduleSet = moduleSet;
-	}
-
-	reloadModules { this.moduleSet = moduleSet }
-
 	moduleSet_{ | newSet, from |
 		moduleSet = newSet;
 		this.loadModules(from);
 		this.initCodex;
 	}
 
+	reloadModules { this.moduleSet = moduleSet }
+
+	reloadScripts {
+		this.removeModules;
+		this.reloadModules;
+	}
+
+	removeModules { this.class.cache.removeAt(moduleSet) }
+
 	*moduleSets {
 		^PathName(this.classFolder).folders
 		.collectAs({ | m | m.folderName.asSymbol }, Set);
 	}
 
-	moduleSets { ^this.class.moduleSets }
-
 	*directory_{ | newPath("~/".standardizePath) |
-		directory = CodexStorage.add(id -> newPath);
+		CodexStorage.add(id -> (directory = newPath));
 	}
 
 	open { | ... keys |
