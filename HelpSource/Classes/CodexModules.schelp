@@ -5,9 +5,7 @@ related::Classes/Codex, Overviews/Codices
 keyword::modules, codices
 
 DESCRIPTION::
-CodexModules is a subclass of link::Classes/Environment:: that was developed to store modules on behalf of link::Classes/Codex::. Specifically, CodexModules is responsible for both compiling and executing scripts and also renaming link::Classes/SynthDef:: modules (see link::Guides/Codices#SynthDef names::).
-
-These operations are coordinated with the similarly named link::Classes/CodexModule::, which is responsible for blurring the distinction between script and object in order to ensure less undefined behavior when defining a module. 
+CodexModules is a subclass of link::Classes/Environment:: that was developed to store modules on behalf of link::Classes/Codex::. Specifically, CodexModules is responsible for both compiling and executing scripts and also renaming link::Classes/SynthDef:: modules (see link::Guides/Codices#SynthDef names::). This is done by managing and manipulating instances of link::Classes/CodexObject::.
 
 CLASSMETHODS:: 
 method::new 
@@ -17,23 +15,23 @@ A string.
 
 INSTANCEMETHODS::
 method::loadAll
-Evaluates each CodexModule, replacing the module itself with the result. If the module contains a SynthDef, it is renamed. 
+Evaluates each CodexObject, replacing it with its result. If the object returns a SynthDef, the SynthDef is renamed. 
 argument::... labels
 Symbols that will be prepended to a SynthDef's preexisting name.
 
 method::addToEnvir
-Adds an instance of CodexModule to the environment.
+Adds an instance of CodexObject to the environment.
 argument::key 
 A symbol indicating the name of the module.
 argument::func
 A function.
 
 method::unpackModule 
-Evaluates a CodexModule, replacing it with its result. 
+Evaluates a CodexObject, replacing it with its result. 
 argument::key 
 The symbol key associated with the module
 argument:: ... args 
-Arguments to pass to CodexModule when evaluating it.
+Arguments to pass to CodexObject when evaluating it.
 
 method::clear
 Clears the environment and removes all SynthDef modules from the server.
