@@ -34,7 +34,6 @@ Codex {
 			cache.add(this.name -> Dictionary.new)[this.name];
 		};
 		var path = this.classFolder+/+set;
-
 		dict[set] ?? {
 			if(path.exists){
 				this.addModules(set);
@@ -49,11 +48,10 @@ Codex {
 				}
 			};
 		};
-
 		^dict[set].deepCopy;
 	}
 
-	*classFolder { ^(this.directory +/+ this.name) }
+	*classFolder { ^(this.directory+/+this.name) }
 
 	*makeTemplates { | templater | }
 
@@ -103,7 +101,8 @@ Codex {
 
 	open { | ... keys |
 		var ide = Platform.ideName;
-		case { ide=="scqt" }{ this.open_scqt(*keys) }
+		case
+		{ ide=="scqt" }{ this.open_scqt(*keys) }
 		{ ide=="scnvim" }{
 			var shell = "echo $SHELL".unixCmdGetStdOut.split($/).last;
 			shell = shell[..(shell.size - 2)];
@@ -193,7 +192,7 @@ Codex {
 }
 
 CodexModules : Environment {
-	var <processor;
+	var processor;
 
 	*new { | folder |
 		^super.new.know_(true).initModules(folder);
@@ -205,9 +204,11 @@ CodexModules : Environment {
 	}
 
 	compileFolder { | folder |
-		PathName(folder).files.do { | file |
-			this.compilePath(file.fullPath);
-		};
+		folder !? {
+			PathName(folder).files.do { | file |
+				this.compilePath(file.fullPath);
+			};
+		}
 	}
 
 	getKeyFrom { | input |
@@ -265,7 +266,7 @@ CodexModule {
 	unpack { | ... args |
 		^envir.use({
 			try { envir.unpackModule(key, *args) }{
-				func.value(*args);
+				this.value(*args);
 			};
 		});
 	}
@@ -276,6 +277,6 @@ CodexModule {
 
 	doesNotUnderstand { | selector ... args |
 		^try { this.unpack(selector, *args) }
-		{ this.superPerformList(\doesNotUnderstand, selector, args); }
+		{ super.doesNotUnderstand(selector, *args) }
 	}
 }
