@@ -262,10 +262,6 @@ CodexObject {
 		});
 	}
 
-	value { | ... args |
-		^func !? { func.value(*args) } ? this;
-	}
-
 	doesNotUnderstand { | selector ... args |
 		^try { this.unpack(selector, *args).perform(selector, *args) }
 		{ this.superPerformList(\doesNotUnderstand, selector, *args) }
