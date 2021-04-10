@@ -26,7 +26,7 @@ Codex {
 
 	loadModules { | from |
 		modules = this.class.getModules(moduleSet, from);
-		modules.loadAll(this.class.name, moduleSet);
+		modules.loadAll(this.class.name++"_"++moduleSet++"_");
 	}
 
 	*getModules { | set, from |
@@ -200,7 +200,7 @@ CodexModules : Environment {
 	}
 
 	initModules { | folder |
-		semaphore = Semaphore.new;
+		semaphore = Semaphore.new(1);
 		this.compileFolder(folder);
 	}
 
@@ -233,7 +233,7 @@ CodexModules : Environment {
 
 	loadModule { | key ... args|
 		^this.use({
-			this[key] = this[key].value(*args);
+			this[key] = this[key].func.value(*args);
 			this[key];
 		});
 	}
@@ -245,13 +245,13 @@ CodexModules : Environment {
 
 	addSynthDefs { | label |
 		var synthDefs = this.synthDefs;
-		if(synthDef.isEmpty.not){
-			synthDefs.do { | synthDef |
-				synthDef.name = (label+/+synthDef.name).asSymbol;
-			};
+		if(synthDefs.isEmpty.not){
 			fork {
 				semaphore.wait;
-				synthDefs.do(_.add);
+				synthDefs.do { | synthDef |
+					synthDef.name = (label++synthDef.name).asSymbol;
+					synthDef.add;
+				};
 				semaphore.signal;
 			};
 		};
@@ -262,11 +262,10 @@ CodexModules : Environment {
 		if(synthDefs.isEmpty.not){
 			fork {
 				semaphore.wait;
-				server.sync;
 				this.synthDefs.do { | synthDef |
 					SynthDef.removeAt(synthDef.name);
 				};
-				sempahore.signal;
+				semaphore.signal;
 			}
 		}
 	}
