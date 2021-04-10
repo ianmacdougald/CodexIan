@@ -232,7 +232,7 @@ CodexModules : Environment {
 
 	loadAll { | ... labels |
 		var modules = this.keys.select { | key |
-			this.at(key).isKindOf(CodexModule);
+			this.at(key).isKindOf(CodexObject);
 		}.collect { | key | this.unpackModule(key) };
 		if(modules.isEmpty.not){
 			labels.do { | item |
@@ -276,7 +276,7 @@ CodexObject {
 	}
 
 	doesNotUnderstand { | selector ... args |
-		^try { this.unpack(selector, *args) }
-		{ super.doesNotUnderstand(selector, *args) }
+		^try { this.unpack(selector, *args).perform(selector, *args) }
+		{ this.superPerformList(\doesNotUnderstand, selector, *args) }
 	}
 }
