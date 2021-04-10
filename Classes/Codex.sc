@@ -227,7 +227,7 @@ CodexModules : Environment {
 	}
 
 	addToEnvir { | key, func |
-		this.add(key -> CodexModule(key, func));
+		this.add(key -> CodexObject(key, func));
 	}
 
 	loadAll { | ... labels |
@@ -256,7 +256,7 @@ CodexModules : Environment {
 	}
 }
 
-CodexModule {
+CodexObject {
 	var <>key, <>func, <>envir;
 
 	*new { | key, func |
