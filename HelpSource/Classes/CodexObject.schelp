@@ -1,0 +1,56 @@
+TITLE::CodexObject
+summary::A middleman between scripts and SuperCollider objects
+categories::Libraries>Codices
+related::Classes/CodexModules, Overviews/Codices
+keyword::codex, codices
+
+CLASSMETHODS::
+method::new 
+Returns a new instance of CodexObject
+argument::key
+A key representing an environment variable where the results of the function will be stored. 
+argument::func 
+A function.
+
+INSTANCEMETHODS::
+private::func
+method::envir
+Gets and the set the environment where function results will be stored.
+
+method::key
+Gets and sets the key symbol.
+
+method::value
+Evalutes the function and returns the result. 
+argument:: ... args
+Arguments to be supplied to the function. 
+
+method::unpack
+If link::Classes/CodexObject#-envir#-envir:: is an instance of link::Classes/CodexModules::, evaluates the function and stores the object in the environment. 
+Otherwise, this method simply evalutes the function like link::Classes/CodexObject#-value#-value:: would.
+
+method::doesNotUnderstand
+Overloads link::Classes/Object#-doesNotUnderstand:: by first trying to unpack the object. 
+
+EXAMPLES::
+code:: 
+//Use the CodexModules interface to instantiate new CodexObjects
+~modules = CodexModules.new; 
+~modules.addToEnvir(\foo, { 2 });
+~modules.addToEnvir(\bar, { 8 });
+
+//Load the modules
+~modules.loadAll;
+
+//CodexObjects can reference objects stored in other CodexObjects
+~modules.clear;
+
+~modules.addToEnvir(\foo, { 2 });
+~modules.addToEnvir(\bar, { ~foo + 2 });
+
+~modules.loadAll;
+::
+
+
+
+
