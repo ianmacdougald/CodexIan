@@ -82,9 +82,10 @@ CodexProcessor {
 	}
 
 	add { | ... synthDefs |
+		synthDefs = this.labelSynthDefs(*synthDefs);
 		fork {
 			semaphore.wait;
-			adder.process(*this.labelSynthDefs(*synthDefs));
+			adder.process(*synthDefs);
 			semaphore.signal;
 		};
 	}
