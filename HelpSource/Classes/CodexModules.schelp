@@ -1,0 +1,69 @@
+TITLE::CodexModules 
+summary::A container for storing modules for Codex classes
+categories::Libraries>Codices
+related::Classes/Codex, Overviews/Codices
+keyword::modules, codices
+
+DESCRIPTION::
+CodexModules is a subclass of link::Classes/Environment:: that was developed to store modules on behalf of link::Classes/Codex::. Specifically, CodexModules is responsible for both compiling and executing scripts and also renaming link::Classes/SynthDef:: modules (see link::Guides/Codices#SynthDef names::). This is done by managing and manipulating instances of link::Classes/CodexObject::.
+
+CLASSMETHODS:: 
+method::new 
+Returns a new instance of CodexModules. If a path to a folder filled with teletype::.scd:: scripts is supplied, the instance will be filled with instances of link::Classes/CodexModule::. 
+argument::folder 
+A string.
+
+INSTANCEMETHODS::
+method::loadAll
+Evaluates each CodexObject, replacing it with its result. If the object returns a SynthDef, the SynthDef is renamed. 
+argument::... labels
+Symbols that will be prepended to a SynthDef's preexisting name.
+
+method::addToEnvir
+Adds an instance of CodexObject to the environment.
+argument::key 
+A symbol indicating the name of the module.
+argument::func
+A function.
+
+method::unpackModule 
+Evaluates a CodexObject, replacing it with its result. 
+argument::key 
+The symbol key associated with the module
+argument:: ... args 
+Arguments to pass to CodexObject when evaluating it.
+
+method::clear
+Clears the environment and removes all SynthDef modules from the server.
+
+private::getKeyFrom
+private::processor
+private::compilePath
+private::compileFolder
+private::initModules
+
+EXAMPLES:: 
+code::
+~path = Main.packages.asDict.at(\Codices)+/+"Examples/Modules";
+
+//Returns an instance filled with CodexModule objects filled with compiled scripts
+~modules = CodexModules(~path);
+
+//Evaluates each module, replacing it with its result in the environment
+~modules.loadAll;
+
+//Boot the server, and add a label to the SynthDef
+s.boot; 
+
+~modules2 = CodexModules(~path);
+~modules2.loadAll(\testing, \modules);
+
+~name = ~modules2.synthDef.name;
+
+//Test the Synth
+Synth(~name);
+
+//Clearing the modules will remove the SynthDef
+~modules2.clear;
+Synth(~name);
+::

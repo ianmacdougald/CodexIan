@@ -53,7 +53,7 @@ Codex {
 		^dict[set].deepCopy;
 	}
 
-	*classFolder { ^(this.directory +/+ this.name) }
+	*classFolder { ^(this.directory+/+this.name) }
 
 	*makeTemplates { | templater | }
 
@@ -103,7 +103,8 @@ Codex {
 
 	open { | ... keys |
 		var ide = Platform.ideName;
-		case { ide=="scqt" }{ this.open_scqt(*keys) }
+		case
+		{ ide=="scqt" }{ this.open_scqt(*keys) }
 		{ ide=="scnvim" }{
 			var shell = "echo $SHELL".unixCmdGetStdOut.split($/).last;
 			shell = shell[..(shell.size - 2)];
@@ -205,9 +206,11 @@ CodexModules : Environment {
 	}
 
 	compileFolder { | folder |
-		PathName(folder).files.do { | file |
-			this.compilePath(file.fullPath);
-		};
+		folder !? {
+			PathName(folder).files.do { | file |
+				this.compilePath(file.fullPath);
+			};
+		}
 	}
 
 	getKeyFrom { | input |
@@ -224,7 +227,7 @@ CodexModules : Environment {
 	}
 
 	addToEnvir { | key, func |
-		this.add(key -> CodexModule(key, func));
+		this.add(key -> CodexObject(key, func));
 	}
 
 	loadAll { | label |
@@ -242,42 +245,9 @@ CodexModules : Environment {
 		this.removeSynthDefs;
 		super.clear;
 	}
-
-	addSynthDefs { | label |
-		var synthDefs = this.synthDefs;
-		if(synthDefs.isEmpty.not){
-			fork {
-				semaphore.wait;
-				synthDefs.do { | synthDef |
-					synthDef.name = (label++synthDef.name).asSymbol;
-					synthDef.add;
-				};
-				semaphore.signal;
-			};
-		};
-	}
-
-	removeSynthDefs {
-		var synthDefs = this.synthDefs;
-		if(synthDefs.isEmpty.not){
-			fork {
-				semaphore.wait;
-				this.synthDefs.do { | synthDef |
-					SynthDef.removeAt(synthDef.name);
-				};
-				semaphore.signal;
-			}
-		}
-	}
-
-	synthDefs {
-		^this.array.select { | obj |
-			obj.isKindOf(SynthDef)
-		};
-	}
 }
 
-CodexModule {
+CodexObject {
 	var <>key, <>func, <>envir;
 
 	*new { | key, func |
@@ -292,8 +262,12 @@ CodexModule {
 		});
 	}
 
+	value { | ... args |
+		^func !? { func.value(*args) } ? this;
+	}
+
 	doesNotUnderstand { | selector ... args |
-		^try { this.unpack(selector, *args) }
-		{ this.superPerformList(\doesNotUnderstand, selector, args); }
+		^try { this.unpack(selector, *args).perform(selector, *args) }
+		{ this.superPerformList(\doesNotUnderstand, selector, *args) }
 	}
 }
