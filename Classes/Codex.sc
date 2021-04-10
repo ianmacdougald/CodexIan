@@ -193,14 +193,14 @@ Codex {
 }
 
 CodexModules : Environment {
-	var <processor;
+	var semaphore;
 
 	*new { | folder |
 		^super.new.know_(true).initModules(folder);
 	}
 
 	initModules { | folder |
-		processor = CodexProcessor.new;
+		semaphore = Semaphore.new;
 		this.compileFolder(folder);
 	}
 
@@ -218,10 +218,8 @@ CodexModules : Environment {
 	compilePath { | path |
 		var key = this.getKeyFrom(path);
 		this.use({
-			this.at(key) ?? {
-				var func = thisProcess.interpreter.compileFile(path);
-				this.addToEnvir(key, func);
-			};
+			var func = thisProcess.interpreter.compileFile(path);
+			this.addToEnvir(key, func);
 		});
 	}
 
@@ -229,20 +227,11 @@ CodexModules : Environment {
 		this.add(key -> CodexModule(key, func));
 	}
 
-	loadAll { | ... labels |
-		var modules = this.keys.select { | key |
-			this.at(key).isKindOf(CodexModule);
-		}.collect { | key | this.unpackModule(key) };
-		if(modules.isEmpty.not){
-			labels.do { | item |
-				processor.label = processor.label++item++"_";
-			};
-			processor.add(*modules.asArray);
-			processor.label = "";
-		}
+	loadAll { | label |
+		this.do(_.value).addSynthDefs(label);
 	}
 
-	unpackModule { | key ... args|
+	loadModule { | key ... args|
 		^this.use({
 			this[key] = this[key].value(*args);
 			this[key];
@@ -250,8 +239,42 @@ CodexModules : Environment {
 	}
 
 	clear {
-		processor.remove(this.asArray);
+		this.removeSynthDefs;
 		super.clear;
+	}
+
+	addSynthDefs { | label |
+		var synthDefs = this.synthDefs;
+		if(synthDef.isEmpty.not){
+			synthDefs.do { | synthDef |
+				synthDef.name = (label+/+synthDef.name).asSymbol;
+			};
+			fork {
+				semaphore.wait;
+				synthDefs.do(_.add);
+				semaphore.signal;
+			};
+		};
+	}
+
+	removeSynthDefs {
+		var synthDefs = this.synthDefs;
+		if(synthDefs.isEmpty.not){
+			fork {
+				semaphore.wait;
+				server.sync;
+				this.synthDefs.do { | synthDef |
+					SynthDef.removeAt(synthDef.name);
+				};
+				sempahore.signal;
+			}
+		}
+	}
+
+	synthDefs {
+		^this.array.select { | obj |
+			obj.isKindOf(SynthDef)
+		};
 	}
 }
 
@@ -262,16 +285,12 @@ CodexModule {
 		^super.newCopyArgs(key, func, currentEnvironment);
 	}
 
-	unpack { | ... args |
+	value { | ... args |
 		^envir.use({
-			try { envir.unpackModule(key, *args) }{
+			try { envir.loadModule(key, *args) }{
 				func.value(*args);
 			};
 		});
-	}
-
-	value { | ... args |
-		^func !? { func.value(*args) } ? this;
 	}
 
 	doesNotUnderstand { | selector ... args |
