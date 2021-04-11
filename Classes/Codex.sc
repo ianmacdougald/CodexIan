@@ -1,13 +1,19 @@
 Codex {
-	classvar <directory, id = 'scmodules', cache;
+	classvar <directory, quark, cache;
 	var <moduleSet, <modules, <>know = true;
 
 	*initClass {
+		quark = Main.packages.asDict.at(\Codices);
 		Class.initClassTree(CodexStorage);
-		directory = CodexStorage.at(id) ?? {
-			var path = Main.packages.asDict.at(\Codices)+/+id;
-			CodexStorage.add(id -> path);
-			path;
+		try {
+			directory = File.readAllString(quark+/+"directory.txt");
+		}{
+			directory = quark+/+"scmodules";
+			File.use(
+				quark+/+"directory.txt",
+				"w",
+				{ | file | file.write(directory) };
+			);
 		};
 		cache = Dictionary.new;
 		this.allSubclasses.do({ | class |
@@ -97,7 +103,12 @@ Codex {
 	}
 
 	*directory_{ | newPath("~/".standardizePath) |
-		CodexStorage.add(id -> (directory = newPath));
+		directory = newPath;
+		File.use(
+			quark+/+"directory.txt",
+			"w",
+			{ | file | file.write(directory) };
+		);
 	}
 
 	open { | ... keys |
