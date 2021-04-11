@@ -34,9 +34,15 @@
 	}
 
 	runInGnome { | shell = "sh" |
-		^if("which gnome-terminal".unixCmdGetStdOut!=""){
+		if("which gnome-terminal".unixCmdGetStdOut!=""){
 			("gnome-terminal -- "+shell+" -i -c "+this.shellQuote).unixCmd;
-			true;
-		} { false };
+			^true;
+		} { ^false };
+	}
+
+	compileFile {
+		if(this.exists){
+			^thisProcess.interpreter.compileFile(this);
+		}{ ^nil };
 	}
 }
