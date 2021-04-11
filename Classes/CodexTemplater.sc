@@ -48,13 +48,14 @@ CodexTemplater {
 		this.makeTemplate(templateName, defaultPath+/+"blank.scd");
 	}
 
-	makeTemplate { | templateName, sourcePath |
-		this.class.copyFile(templateName, sourcePath, folder);
-	}
-
-	*copyFile { | templateName, sourcePath, folder |
-		var to = folder+/+templateName.asString++".scd";
-		try({ File.copy(sourcePath, to) },
-			{ File.copy(sourcePath, to.increment) });
+	makeTemplate { | templateName, source |
+		var fileName, fullPath, i = 0;
+		fileName = folder+/+templateName;
+		fullPath = fileName++".scd";
+		while({ fullPath.exists }){
+			i = i + 1;
+			fullPath = fileName++i++".scd";
+		};
+		File.copy(source, fullPath);
 	}
 }
