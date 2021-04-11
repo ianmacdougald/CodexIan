@@ -25,16 +25,16 @@ Codex {
 	*new { | moduleSet, from |
 		^super.newCopyArgs(
 			moduleSet ?? { Error("No module set specified").throw }
-		).loadModules(from).initCodex;
+		).getModules(from).initCodex;
 	}
 
 	initCodex { }
 
-	loadModules { | from |
-		modules = this.class.getModules(moduleSet, from);
+	getModules { | from |
+		modules = this.class.loadModules(moduleSet, from);
 	}
 
-	*getModules { | set, from |
+	*loadModules { | set, from |
 		var dict = this.cache ?? {
 			cache.add(this.name -> Dictionary.new)[this.name];
 		};
@@ -42,12 +42,12 @@ Codex {
 
 		dict[set] ?? {
 			if(path.exists){
-				this.addModules(set);
+				this.loadScripts(set);
 			} {
 				path.mkdir;
 				if(from.isNil){
 					this.makeTemplates(CodexTemplater(path));
-					this.addModules(set);
+					this.loadScripts(set);
 				} {
 					dict.add(set -> this.getModules(from));
 					fork { (this.classFolder+/+from).copyScriptsTo(path) };
@@ -55,15 +55,16 @@ Codex {
 			};
 		};
 
-		^dict[set].deepCopy.addAll(this.name++"_"++set++"_");
+		^dict[set].deepCopy;
 	}
 
 	*classFolder { ^(this.directory+/+this.name) }
 
 	*makeTemplates { | templater | }
 
-	*addModules { | set |
-		this.cache.add(set -> CodexModules(this.classFolder+/+set));
+	*loadScripts { | set |
+		this.cache.add(set -> CodexModules(this.classFolder+/+set)
+			.loadAll(this.name++"_"++set++"_"));
 	}
 
 	*copyVersions {
@@ -220,10 +221,7 @@ CodexModules : Environment {
 			this.use({
 				PathName(folder).files.do { | file |
 					file = file.fullPath;
-					this.addToEnvir(
-						this.getKeyFrom(file),
-						thisProcess.interpreter.compileFile(file);
-					);
+					this.add(this.getKeyFrom(file) -> file.compileFile);
 				};
 			});
 		}
@@ -234,36 +232,39 @@ CodexModules : Environment {
 		^(string[0].toLower++string[1..]).asSymbol;
 	}
 
-	addToEnvir { | key, func |
-		this.add(key -> CodexObject(key, func));
+	add { | anAssociation |
+		this.put(
+			anAssociation.key,
+			CodexObject(anAssociation.key, anAssociation.value, this);
+		);
 	}
 
 	clear {
-		this.removeAll;
+		this.removeSynthDefs;
 		super.clear;
 	}
 
-	addAll { | label |
-		fork{
-			//Selecting SynthDefs will evaluate/replace modules.
-			var synthDefs = this.synthDefs;
-			//However, the selection function will return CodexObjects.
-			if(synthDefs.isEmpty.not){
+	loadAll { | label |
+		//Selecting SynthDefs will evaluate/replace modules.
+		var synthDefs = this.synthDefs;
+		//However, the selection function will return CodexObjects.
+		if(synthDefs.isEmpty.not){
+			synthDefs.do { | synthDef |
+				synthDef = synthDef.value;
+				synthDef.name = (label++synthDef.name).asSymbol;
+			};
+			fork{
 				semaphore.wait;
-				synthDefs.do { | synthDef |
-					synthDef = synthDef.value;
-					synthDef.name = (label++synthDef.name).asSymbol;
-					synthDef.add;
-				};
+				synthDefs.do { | synthDef | synthDef.value.add };
 				semaphore.signal;
-			}
+			};
 		}
 	}
 
-	removeAll {
-		fork {
-			var synthDefs = this.synthDefs;
-			if(synthDefs.isEmpty.not){
+	removeSynthDefs {
+		var synthDefs = this.synthDefs;
+		if(synthDefs.isEmpty.not){
+			fork {
 				semaphore.wait;
 				synthDefs.do { | synthDef |
 					SynthDef.removeAt(synthDef.value.name);
@@ -281,17 +282,19 @@ CodexModules : Environment {
 }
 
 CodexObject {
-	var <>key, <>object, <>envir;
+	var <>key, <>function, <>envir;
 
-	*new { | key, object, envir |
-		^super.newCopyArgs(key, object, currentEnvironment);
+	*new { | key, function, envir |
+		^super.newCopyArgs(key, function, envir);
 	}
 
 	value { | ... args |
-		if(envir[key]==this){
-			envir[key] = object.value(*args);
-		};
-		^envir[key];
+		^envir.use({
+			if(envir[key].isNil or: { envir[key] == this }){
+				envir[key] = function.value(*args);
+			};
+			envir[key];
+		});
 	}
 
 	doesNotUnderstand { | selector ... args |
