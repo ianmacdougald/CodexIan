@@ -3,7 +3,7 @@
 
 	getScripts {
 		^this.getPaths.select({ | item |
-			item[(item.size - 4)..]=="scd";
+			item[(item.size - 4)..]==".scd";
 		});
 	}
 }
