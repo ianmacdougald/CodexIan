@@ -5,7 +5,7 @@ related::Guides/Codices
 keyword::codex
 
 DESCRIPTION::
-Codex establishes a workflow both for developing and interacting with objects that are comprised of interconnected scriptable modules. The class manages the directory of all of its subclasses' modules, providing a simple interface for loading, unloading, cloning, and generating them from link::Classes/CodexTemplater##templates::.
+Codex establishes a workflow for both developing and interacting with objects that are comprised of interconnected scriptable modules. The class manages the directory of all of its subclasses' modules, providing a simple interface for loading, unloading, cloning, and generating modules from link::Classes/CodexTemplater##templates::.
 
 note::Codex should not be instantiated. Rather, it is meant to encapsulate behaviors on behalf of its subclasses. So instance those instead.
 ::
@@ -68,7 +68,7 @@ code::
 argument::versions
 A link::Classes/Dictionary::.
 
-private::getModules
+private::loadModules
 private::loadScripts
 private::makeTemplates
 private::scriptKey
@@ -125,6 +125,7 @@ method::know
 If set to true, the instance interprets method calls as look-ups in the collection of modules.
 
 private::initCodex
+private::getModules
 
 
 private::removeModules

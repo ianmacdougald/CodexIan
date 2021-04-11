@@ -1,7 +1,7 @@
 TITLE::CodexModules 
 summary::A container for storing modules for Codex classes
 categories::Libraries>Codices
-related::Classes/Codex, Overviews/Codices
+related::Classes/Codex, Classes/CodexObject
 keyword::modules, codices
 
 DESCRIPTION::
@@ -9,29 +9,26 @@ CodexModules is a subclass of link::Classes/Environment:: that was developed to 
 
 CLASSMETHODS:: 
 method::new 
-Returns a new instance of CodexModules. If a path to a folder filled with teletype::.scd:: scripts is supplied, the instance will be filled with instances of link::Classes/CodexModule::. 
+Returns a new instance of CodexModules. If a folder path containing teletype::.scd:: scripts is supplied, the instance will be filled with link::Classes/CodexObject##CodexObjects::. 
 argument::folder 
 A string.
 
 INSTANCEMETHODS::
-method::addAll
-Evaluates each CodexObject, replacing it with its result. If the object returns a SynthDef, the SynthDef is renamed. 
-argument::... labels
-Symbols that will be prepended to a SynthDef's preexisting name.
+method::loadAll
+Evaluates each CodexObject, replacing it with its result. If the object returns a link::Classes/SynthDef::, the SynthDef is renamed and link::Classes/SynthDef#-add#added:: to the server. 
+argument::label
+A symbol that will be prepended to a SynthDef's preexisting name.
 
-method::addToEnvir
+method::add
 Adds an instance of CodexObject to the environment.
-argument::key 
-A symbol indicating the name of the module.
-argument::func
-A function.
+argument::anAssociation
+An instance of link::Classes/Association::.
 
-method::unpackModule 
-Evaluates a CodexObject, replacing it with its result. 
-argument::key 
-The symbol key associated with the module
-argument:: ... args 
-Arguments to pass to CodexObject when evaluating it.
+method::synthDefs
+Gets all of the SynthDefs.
+
+method::removeSynthDefs
+Removes all of the SynthDefs from the server.
 
 method::clear
 Clears the environment and removes all SynthDef modules from the server.
@@ -44,26 +41,29 @@ private::initModules
 
 EXAMPLES:: 
 code::
+//Get the path to the Quark's example modules.
 ~path = Main.packages.asDict.at(\Codices)+/+"Examples/Modules";
 
-//Returns an instance filled with CodexModule objects filled with compiled scripts
+//Return an instance filled with CodexObjects.
 ~modules = CodexModules(~path);
 
-//Evaluates each module, replacing it with its result in the environment
-~modules.addAll;
+//Evaluate each module, replacing it with its result.
+~modules.loadAll;
 
-//Boot the server, and add a label to the SynthDef
+//Boot the server, and add a label to the SynthDef.
 s.boot; 
-
 ~modules2 = CodexModules(~path);
-~modules2.addAll(\testing, \modules);
+~modules2.loadAll(\testing_modules_);
 
+//Inspect the SynthDef's name.
 ~name = ~modules2.synthDef.name;
 
-//Test the Synth
+//Test the Synth.
 Synth(~name);
 
-//Clearing the modules will remove the SynthDef
+//Clear the modules to remove the SynthDef.
 ~modules2.clear;
+
+//Test the Synth.
 Synth(~name);
 ::
