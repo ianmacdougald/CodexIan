@@ -26,7 +26,6 @@ Codex {
 
 	loadModules { | from |
 		modules = this.class.getModules(moduleSet, from);
-		modules.loadAll(this.class.name++"_"++moduleSet++"_");
 	}
 
 	*getModules { | set, from |
@@ -50,7 +49,7 @@ Codex {
 			};
 		};
 
-		^dict[set].deepCopy;
+		^dict[set].deepCopy.addAll(this.name++"_"++set++"_");
 	}
 
 	*classFolder { ^(this.directory+/+this.name) }
@@ -207,9 +206,15 @@ CodexModules : Environment {
 
 	compileFolder { | folder |
 		folder !? {
-			PathName(folder).files.do { | file |
-				this.compilePath(file.fullPath);
-			};
+			this.use({
+				PathName(folder).files.do { | file |
+					file = file.fullPath;
+					this.addToEnvir(
+						this.getKeyFrom(file),
+						thisProcess.interpreter.compileFile(file);
+					);
+				};
+			});
 		}
 	}
 
@@ -218,52 +223,68 @@ CodexModules : Environment {
 		^(string[0].toLower++string[1..]).asSymbol;
 	}
 
-	compilePath { | path |
-		var key = this.getKeyFrom(path);
-		this.use({
-			var func = thisProcess.interpreter.compileFile(path);
-			this.addToEnvir(key, func);
-		});
-	}
-
 	addToEnvir { | key, func |
 		this.add(key -> CodexObject(key, func));
 	}
 
-	loadAll { | label |
-		this.do(_.value).addSynthDefs(label);
-	}
-
-	loadModule { | key ... args|
-		^this.use({
-			this[key] = this[key].func.value(*args);
-			this[key];
-		});
-	}
-
 	clear {
-		this.removeSynthDefs;
+		this.removeAll;
 		super.clear;
+	}
+
+	addAll { | label |
+		fork{
+			//Selecting SynthDefs will evaluate/replace modules.
+			var synthDefs = this.synthDefs;
+			//However, the selection function will return CodexObjects.
+			if(synthDefs.isEmpty.not){
+				semaphore.wait;
+				synthDefs.do { | synthDef |
+					synthDef = synthDef.value;
+					synthDef.name = (label++synthDef.name).asSymbol;
+					synthDef.add;
+				};
+				semaphore.signal;
+			}
+		}
+	}
+
+	removeAll {
+		fork {
+			var synthDefs = this.synthDefs;
+			if(synthDefs.isEmpty.not){
+				semaphore.wait;
+				synthDefs.do { | synthDef |
+					SynthDef.removeAt(synthDef.value.name);
+				};
+				semaphore.signal;
+			}
+		}
+	}
+
+	synthDefs {
+		^this.array.select { | object |
+			object.value.isKindOf(SynthDef);
+		};
 	}
 }
 
 CodexObject {
-	var <>key, <>func, <>envir;
+	var <>key, <>object, <>envir;
 
-	*new { | key, func |
-		^super.newCopyArgs(key, func, currentEnvironment);
+	*new { | key, object, envir |
+		^super.newCopyArgs(key, object, currentEnvironment);
 	}
 
 	value { | ... args |
-		^envir.use({
-			try { envir.loadModule(key, *args) }{
-				func.value(*args);
-			};
-		});
+		if(envir[key]==this){
+			envir[key] = object.value(*args);
+		};
+		^envir[key];
 	}
 
 	doesNotUnderstand { | selector ... args |
-		^try { this.unpack(selector, *args).perform(selector, *args) }
+		^try { this.value(selector, *args).perform(selector, *args) }
 		{ this.superPerformList(\doesNotUnderstand, selector, *args) }
 	}
 }
