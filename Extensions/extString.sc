@@ -20,7 +20,7 @@
 	}
 
 	endNumber {	// turn consecutive digits at the end of fullPath into a number.
-		^this[this.endNumberIndex + 1..].asInteger
+		^(try { this[this.endNumberIndex + 1..] }{ this }).asInteger;
 	}
 
 	endNumberIndex {
