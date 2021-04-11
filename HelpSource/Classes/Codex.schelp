@@ -1,7 +1,7 @@
 TITLE::Codex
 summary::Abstract superclass for modular class interfaces
 categories::Libraries>Codices
-related::Guides/Codices, Overviews/Codices
+related::Guides/Codices
 keyword::codex
 
 DESCRIPTION::
@@ -21,7 +21,7 @@ argument::from
 (optional) symbol to clone new modules from.
 
 method::directory
-Gets and (persistently) sets the path to the directory of modules for all subclasses of Codex. For further details, see link::Classes/CodexStorage::.
+Gets and (persistently) sets the path to the directory of modules for all subclasses of Codex.
 note::Before using a subclass of Codex for the first time, be sure to configure the path to the directory of modules. This can be done either through the interface of Codex or any of its subclasses. However, any change made will affect all subclasses of Codex.
 code::
 //Check where the directory is.

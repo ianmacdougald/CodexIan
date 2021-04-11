@@ -14,7 +14,7 @@ argument::folder
 A string.
 
 INSTANCEMETHODS::
-method::loadAll
+method::addAll
 Evaluates each CodexObject, replacing it with its result. If the object returns a SynthDef, the SynthDef is renamed. 
 argument::... labels
 Symbols that will be prepended to a SynthDef's preexisting name.
@@ -50,13 +50,13 @@ code::
 ~modules = CodexModules(~path);
 
 //Evaluates each module, replacing it with its result in the environment
-~modules.loadAll;
+~modules.addAll;
 
 //Boot the server, and add a label to the SynthDef
 s.boot; 
 
 ~modules2 = CodexModules(~path);
-~modules2.loadAll(\testing, \modules);
+~modules2.addAll(\testing, \modules);
 
 ~name = ~modules2.synthDef.name;
 

@@ -1,7 +1,7 @@
 TITLE::CodexObject
 summary::A middleman between scripts and SuperCollider objects
 categories::Libraries>Codices
-related::Classes/CodexModules, Overviews/Codices
+related::Classes/CodexModules,
 keyword::codex, codices
 
 CLASSMETHODS::
@@ -36,19 +36,23 @@ EXAMPLES::
 code:: 
 //Use the CodexModules interface to instantiate new CodexObjects
 ~modules = CodexModules.new; 
-~modules.addToEnvir(\foo, { 2 });
-~modules.addToEnvir(\bar, { 8 });
+~modules.use({  
+	~modules.addToEnvir(\foo, { 2 });
+	~modules.addToEnvir(\bar, { 8 });
+});
 
 //Load the modules
-~modules.loadAll;
+~modules.addAll;
 
 //CodexObjects can reference objects stored in other CodexObjects
 ~modules.clear;
 
-~modules.addToEnvir(\foo, { 2 });
-~modules.addToEnvir(\bar, { ~foo + 2 });
+~modules.use({  
+	~modules.addToEnvir(\foo, { 2 });
+	~modules.addToEnvir(\bar, { ~foo + 2 });
+});
 
-~modules.loadAll;
+~modules.addAll;
 ::
 
 
