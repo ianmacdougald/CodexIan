@@ -1,35 +1,11 @@
-+ String{
++ String {
 	getPaths { ^PathName(this).getPaths }
 
-	getAudioPaths {
+	getScripts {
 		^this.getPaths.select({ | item |
-			this.isValidAudioPath(item);
+			item[(item.size - 4)..]==".scd";
 		});
 	}
-
-	getScriptPaths {
-		^this.getPaths.select({ | item |
-			this.isValidScript(item);
-		});
-	}
-
-	isValidScript { | input | ^(PathName(input).extension=="scd") }
-
-	isValidAudioPath { | input |
-		^this.class.validAudioPaths
-		.find([PathName(input).extension]).notNil;
-	}
-
-	*validAudioPaths {
-		^[
-			"wav",
-			"aiff",
-			"oof",
-			"mp3"
-		];
-	}
-
-	getBuffers { ^this.getAudioPaths.collect(_.asBuffer) }
 }
 
 + PathName{
@@ -40,8 +16,6 @@
 		});
 		^this.entries.getPaths;
 	}
-
-	getAudioPaths { ^fullPath.getAudioPaths }
 }
 
 + Collection {
@@ -49,14 +23,6 @@
 		var strings = [];
 		this.do{ | item, index |
 			strings = strings++item.getPaths;
-		};
-		^strings.as(this.class);
-	}
-
-	getAudioPaths {
-		var strings = [];
-		this.do{ | item, index |
-			strings = strings++item.getAudioPaths;
 		};
 		^strings.as(this.class);
 	}

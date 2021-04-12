@@ -1,0 +1,133 @@
+TITLE::Codex
+summary::Abstract superclass for modular class interfaces
+categories::Libraries>Codices
+related::Guides/Codex
+keyword::codex
+
+DESCRIPTION::
+Codex establishes a workflow for both developing and interacting with objects that are comprised of interconnected scriptable modules. The class manages the directory of all of its subclasses' modules, providing a simple interface for loading, unloading, cloning, and generating modules from link::Classes/CodexTemplater##templates::.
+
+note::Codex should not be instantiated. Rather, it is meant to encapsulate behaviors on behalf of its subclasses. So instance those instead.
+::
+
+CLASSMETHODS::
+
+method::new
+Creates a new instance.
+
+argument::moduleSet
+A symbol pointing to a new or preexisting set of modules.
+argument::from
+(optional) symbol to clone new modules from.
+
+method::directory
+Gets and (persistently) sets the path to the directory of modules for all subclasses of Codex.
+note::Before using a subclass of Codex for the first time, be sure to configure the path to the directory of modules. This can be done either through the interface of Codex or any of its subclasses. However, any change made will affect all subclasses of Codex.
+code::
+//Check where the directory is.
+Codex.directory.postln;
+
+//Replace this path with something you prefer.
+Codex.directory = "~/Documents/scmodules".standardizePath;
+::
+::
+
+private::defaultDirectory
+private::checkDefaults
+
+method::classFolder
+Gets the path to the folder where all of the collections of modules for a given Codex-typed class are stored.
+
+method::moduleSets
+Gets the names of the moduleSets that currently exist for a given class.
+
+method::cache
+Gets the link::Classes/Dictionary:: that is storing the class's loaded sets of modules.
+method::clearCache
+Clears the cache, forcing the class to reload all of its modules from scripts.
+private::addModules
+private::asPath
+private::copyFiles
+private::copyModules
+private::copyVersions
+method::contribute
+A private method for internal use only that manages versions of pre-configured modules to be distributed with a class inheriting from Codex.
+
+note::
+To make a contribution, overwrite this method by adding link::Classes/Association##assocations:: to the dictionry argument like so. This allows modules to be distributed with quarks and be made available to users with despite their unique configurations.
+
+code::
+*contribute { | versions |
+	versions.add(\example -> "Path/To/Modules");
+
+	versions.add(\anotherExample -> "Another/Path/Here");
+}
+::
+::
+
+argument::versions
+A link::Classes/Dictionary::.
+
+private::loadModules
+private::loadScripts
+private::makeTemplates
+private::scriptKey
+
+INSTANCEMETHODS::
+method::modules
+Gets an instance of link::Classes/CodexModules:: filled with modules.
+
+method::moduleSet
+Gets and sets the current moduleSet.
+argument::newSet
+A symbol pooint to a new or preexisting set of modules.
+argument::from
+(optional) symbol to clone new modules from.
+
+method::moduleFolder
+Gets the path to the folder where the modules currently loaded into the instance are stored.
+
+private::loadModules
+
+method::reloadScripts
+Reloads modules into the cache from scripts and copies them into link::#-modules::.
+method::reloadModules
+Copies modules from the cache into link::#-modules::.
+
+method::open
+argument::... keys
+Symbols specifying which modules to open.
+
+method::open_scqt
+argument::... keys
+Symbols specifying which modules to open.
+
+method::open_scvim
+Open a single module or group of modules using scvim.
+argument::shell
+A String representing the name of the shell to use to open vim/nvim.
+argument::neovim
+A link::Classes/Boolean:: determining whether to use scvim or scnvim.
+argument::vertically
+A Boolean determining if modules files will be opened vertically or horizontally.
+argument::... keys
+Symbols specifying which modules to open.
+
+method::openModules
+Open each module's associated scripts.
+
+method::closeModules
+Close all of the open module files.
+note::This is only implemented for scqt.::
+
+private::doesNotUnderstand
+method::know
+If set to true, the instance interprets method calls as look-ups in the collection of modules.
+
+private::initCodex
+private::getModules
+
+
+private::removeModules
+
+

@@ -1,0 +1,58 @@
+TITLE::CodexObject
+summary::A temporary state between scripts and SuperCollider objects
+categories::Libraries>Codices
+related::Classes/CodexModules
+keyword::codex, codices, modules
+
+DESCRIPTION::
+CodexObject blurs the distinction between scripts and SuperCollider objects inside link::Classes/CodexModules::. It was originally designed to handle the case where one module references another that had not yet been executed by the link::Classes/Interpreter::.
+
+CLASSMETHODS::
+method::new 
+Returns a new instance of CodexObject
+argument::key
+A link::Classes/Symbol::representing an environment variable where the results of the function will be stored. 
+argument::function
+A link::Classes/Function::.
+argument::envir
+An link::Classes/Environment::, preferably link::Classes/CodexModules::.
+
+INSTANCEMETHODS::
+method::value
+When first called, evalutes the function, replacing the object stored in the environment at link::Classes/CodexObject#-key with its result::. Afterwards, only returns this result.
+argument:: ... args
+
+method::doesNotUnderstand
+Overloads link::Classes/Object#-doesNotUnderstand:: by first calling link::Classes/CodexObject#-value:: and then trying again on the result. 
+
+method::function
+method::envir
+method::key
+
+EXAMPLES::
+code:: 
+//Use the CodexModules interface to instantiate new CodexObjects.
+~modules = CodexModules.new; 
+~modules.add(\foo -> { 2.0 }); 
+~modules.add(\bar -> { 4.0 });
+
+//Load the modules.
+~modules.initialize;
+
+//Objects stored in one object can operate on other objects.
+~modules.clear;
+~modules.add(\foo -> { 2.0 }); 
+~modules.add(\bar -> { ~foo.pow(8) });
+
+//Load the modules.
+~modules.initialize;
+
+//Methods not defined by CodexObject are tested on the result of the function. 
+~modules.clear;
+~modules.add(\myList -> { List.new });
+~modules.myList.add(4);
+::
+
+
+
+

@@ -1,0 +1,66 @@
+TITLE::CodexModules 
+summary::A container for storing modules for Codex classes
+categories::Libraries>Codices
+related::Classes/Codex, Classes/CodexObject
+keyword::modules, codices, codex
+
+DESCRIPTION::
+CodexModules is a subclass of link::Classes/Environment:: that was developed to store modules on behalf of link::Classes/Codex::. Specifically, CodexModules is responsible for both compiling and executing scripts and also renaming link::Classes/SynthDef:: modules (see link::Guides/Codex#SynthDef names::). This is done by managing and manipulating instances of link::Classes/CodexObject::.
+
+CLASSMETHODS:: 
+method::new 
+Returns a new instance of CodexModules. If a folder path containing teletype::.scd:: scripts is supplied, the instance will be filled with link::Classes/CodexObject##CodexObjects::. 
+argument::folder 
+A string.
+
+INSTANCEMETHODS::
+method::initialize
+Evaluates each CodexObject, replacing it with its result. If the object returns a link::Classes/SynthDef::, the SynthDef is renamed and link::Classes/SynthDef#-add#added:: to the server. 
+argument::label
+A symbol that will be prepended to a SynthDef's preexisting name.
+
+method::add
+Adds an instance of CodexObject to the environment.
+argument::anAssociation
+An instance of link::Classes/Association::.
+
+method::synthDefs
+Gets all of the SynthDefs.
+
+method::clear
+Clears the environment and removes all SynthDef modules from the server.
+
+private::getKeyFrom
+private::processor
+private::compilePath
+private::compileFolder
+private::initModules
+
+EXAMPLES:: 
+code::
+//Get the path to the Quark's example modules.
+~path = Main.packages.asDict.at(\Codex)+/+"Examples/Modules";
+
+//Return an instance filled with CodexObjects.
+~modules = CodexModules(~path);
+
+//Evaluate each module, replacing it with its result.
+~modules.initialize;
+
+//Boot the server, and add a label to the SynthDef.
+s.boot; 
+~modules2 = CodexModules(~path);
+~modules2.initialize(\testing_modules_);
+
+//Inspect the SynthDef's name.
+~name = ~modules2.synthDef.name;
+
+//Test the Synth.
+Synth(~name);
+
+//Clear the modules to remove the SynthDef.
+~modules2.clear;
+
+//Test the Synth.
+Synth(~name);
+::
