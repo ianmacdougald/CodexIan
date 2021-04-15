@@ -18,10 +18,7 @@ Codex {
 			);
 		};
 		cache = Dictionary.new;
-		this.allSubclasses.do({ | class |
-			Class.initClassTree(class);
-			class.copyVersions;
-		});
+		this.subclasses.do(_.copyVersions);
 	}
 
 	*new { | moduleSet, from |
@@ -51,7 +48,6 @@ Codex {
 					this.makeTemplates(CodexTemplater(path));
 					this.loadScripts(set);
 				} {
-					//Initializing a second time will rename and readd the SynthDefs
 					dict.add(set -> this.loadModules(from)
 						.initialize(this.name++"_"++set++"_"));
 					fork { (this.classFolder+/+from).copyScriptsTo(path) };
@@ -193,8 +189,8 @@ Codex {
 					^modules[selector.asGetter] = args[0];
 				}, {
 					warn(
-						"Can only overwrite pseudo-variable"
-						++"with object of the same type."
+						"Can only overwrite pseudo-variable module"
+						++" with object of the same type."
 					);
 					^this;
 				});
@@ -219,15 +215,10 @@ CodexModules : Environment {
 	compileFolder { | folder |
 		folder !? {
 			PathName(folder).files.do { | file |
-				file = file.fullPath;
-				this.add(this.getKeyFrom(file) -> file.compileFile);
+				var key = file.fileName[0].toLower++file.fileNameWithoutExtension[1..];
+				this.add(key.asSymbol -> file.fullPath.compileFile);
 			};
 		}
-	}
-
-	getKeyFrom { | input |
-		var string = PathName(input).fileNameWithoutExtension;
-		^(string[0].toLower++string[1..]).asSymbol;
 	}
 
 	add { | anAssociation |
@@ -303,5 +294,70 @@ CodexObject {
 	doesNotUnderstand { | selector ... args |
 		^try { this.value(selector, *args).perform(selector, *args) }
 		{ this.superPerformList(\doesNotUnderstand, selector, *args) }
+	}
+}
+
+CodexTemplater {
+	classvar defaultPath;
+	var <>folder;
+
+	*initClass {
+		Class.initClassTree(Collection);
+		Class.initClassTree(Main);
+		Class.initClassTree(Quarks);
+		defaultPath = Main.packages.asDict
+		.at(\Codex)+/+"Templates";
+	}
+
+	*new { | folder |
+		folder ?? { Error("No folder set.").throw };
+		^super.newCopyArgs(folder.asString);
+	}
+
+	synthDef { | templateName("synthDef") |
+		this.makeTemplate(templateName, defaultPath+/+"synthDef.scd");
+	}
+
+	pattern { | templateName("pattern") |
+		this.makeTemplate(templateName, defaultPath+/+"pattern.scd");
+	}
+
+	function { | templateName("function") |
+		this.makeTemplate(templateName, defaultPath+/+"function.scd");
+	}
+
+	synth { | templateName("synth") |
+		this.makeTemplate(templateName, defaultPath+/+"node.scd");
+	}
+
+	event { | templateName("event") |
+		this.makeTemplate(templateName, defaultPath+/+"event.scd");
+	}
+
+	array { | templateName("array") |
+		this.makeTemplate(templateName, defaultPath+/+"array.scd");
+	}
+
+	list { | templateName("list") |
+		this.makeTemplate(templateName, defaultPath+/+"list.scd");
+	}
+
+	buffer { | templateName("buffer") |
+		this.makeTemplate(templateName, defaultPath+/+"buffer.scd");
+	}
+
+	blank { | templateName("module") |
+		this.makeTemplate(templateName, defaultPath+/+"blank.scd");
+	}
+
+	makeTemplate { | templateName, source |
+		var fileName, fullPath, i = 0;
+		fileName = folder+/+templateName;
+		fullPath = fileName++".scd";
+		while({ fullPath.exists }){
+			i = i + 1;
+			fullPath = fileName++i++".scd";
+		};
+		File.copy(source, fullPath);
 	}
 }
