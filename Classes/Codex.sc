@@ -218,12 +218,10 @@ CodexModules : Environment {
 
 	compileFolder { | folder |
 		folder !? {
-			this.use({
-				PathName(folder).files.do { | file |
-					file = file.fullPath;
-					this.add(this.getKeyFrom(file) -> file.compileFile);
-				};
-			});
+			PathName(folder).files.do { | file |
+				file = file.fullPath;
+				this.add(this.getKeyFrom(file) -> file.compileFile);
+			};
 		}
 	}
 
@@ -235,9 +233,15 @@ CodexModules : Environment {
 	add { | anAssociation |
 		this.put(
 			anAssociation.key,
-			CodexObject(anAssociation.key, anAssociation.value, this);
+			this.class.object.new(
+				anAssociation.key,
+				anAssociation.value,
+				this
+			);
 		);
 	}
+
+	*object { ^CodexObject }
 
 	initialize { | label |
 		//Selecting SynthDefs will evaluate/replace modules.
